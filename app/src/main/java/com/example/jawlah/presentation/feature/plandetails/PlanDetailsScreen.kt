@@ -44,6 +44,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,8 +61,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.jawlah.R
+import com.example.jawlah.presentation.component.AddPlaceBottomSheet
 import com.example.jawlah.presentation.component.AiSuggestionCard
+import com.example.jawlah.presentation.component.FullScreenDialog
+import com.example.jawlah.presentation.component.FullScreenDialogExample
+import com.example.jawlah.presentation.component.PlaceType
 import com.example.jawlah.presentation.component.PlanDetailCard
+import com.example.jawlah.presentation.feature.destinations.AITestScreenDestination
 import com.example.jawlah.presentation.util.SIDE_EFFECTS_KEY
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -77,6 +86,9 @@ fun PlanDetailsScreen(
         onNavigationRequested = {
             when (it) {
                 PlanDetailsContract.Effect.Navigation.Back -> navigator.navigateUp()
+                PlanDetailsContract.Effect.Navigation.AITest -> navigator.navigate(
+                    AITestScreenDestination
+                )
             }
         }
     )
@@ -95,6 +107,8 @@ fun PlanDetailsScreenContent(
         onEventSent(PlanDetailsContract.Event.LoadSuggestions)
     }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -132,7 +146,9 @@ fun PlanDetailsScreenContent(
                         )
                     }
                     IconButton(
-                        onClick = { }
+                        onClick = {
+                            onNavigationRequested(PlanDetailsContract.Effect.Navigation.AITest)
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.check_box),
@@ -153,7 +169,9 @@ fun PlanDetailsScreenContent(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { },
+                        onClick = {
+                            showBottomSheet = true
+                        },
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -179,6 +197,16 @@ fun PlanDetailsScreenContent(
                 shape = RoundedCornerShape(8.dp),
                 color = MaterialTheme.colorScheme.surfaceContainer,
             ) {
+
+                if (showBottomSheet) {
+                    AddPlaceBottomSheet(onDismiss = { showBottomSheet = false }) { placeType ->
+                        showDialog = true
+                    }
+                }
+
+                if(showDialog) {
+                    FullScreenDialog()
+                }
 
                 Column {
                     Row(
