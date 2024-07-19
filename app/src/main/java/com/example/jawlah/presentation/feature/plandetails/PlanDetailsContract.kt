@@ -32,6 +32,7 @@ class PlanDetailsContract {
 
         sealed class Navigation : Effect() {
             data object Back : Navigation()
+            data object AITest : Navigation()
         }
     }
 }

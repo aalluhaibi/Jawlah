@@ -38,7 +38,7 @@ fun PickImageBottomSheet(
     onTakePhotoClick: (QuickPick?) -> Unit,
     onPhotoGalleryClick: () -> Unit,
 ) {
-    MyModalBottomSheetContent(
+    CustomModalBottomSheetContent(
         header = "Choose Option",
         onDismiss = {
             onDismiss.invoke()
@@ -84,9 +84,50 @@ fun PickImageBottomSheet(
     )
 }
 
+
+@Composable
+fun AddPlaceBottomSheet(
+    onDismiss: () -> Unit,
+    onPlaceTypeSelected: (PlaceType) -> Unit
+) {
+    CustomModalBottomSheetContent(onDismiss = { onDismiss.invoke() },
+        items = listOf(
+            BottomSheetItem(
+                title = "Place",
+                icon = painterResource(R.drawable.map_location),
+                onClick = {
+                    onPlaceTypeSelected.invoke(PlaceType.PLACE)
+                }
+            ),
+            BottomSheetItem(
+                title = "Activity",
+                icon = painterResource(R.drawable.hot_air_balloon),
+                onClick = {
+                    onPlaceTypeSelected.invoke(PlaceType.ACTIVITY)
+                }
+            ),
+            BottomSheetItem(
+                title = "Lodging",
+                icon = painterResource(R.drawable.lodging),
+                onClick = {
+                    onPlaceTypeSelected.invoke(PlaceType.LODGING)
+                }
+            ),
+            BottomSheetItem(
+                title = "Other",
+                icon = painterResource(R.drawable.booking),
+                onClick = {
+                    onPlaceTypeSelected.invoke(PlaceType.OTHER)
+                }
+            )
+        )
+    )
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyModalBottomSheetContent(
+fun CustomModalBottomSheetContent(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
     //header
@@ -131,8 +172,8 @@ fun MyModalBottomSheetContent(
                     Column(
                         modifier = modifier
                             .clickable {
-                            item.onClick.invoke()
-                        },
+                                item.onClick.invoke()
+                            },
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
@@ -195,7 +236,7 @@ data class BottomSheetItem(
 @Preview(showBackground = true)
 @Composable
 fun MyModalBottomSheetContentPreview(modifier: Modifier = Modifier) {
-    MyModalBottomSheetContent(
+    CustomModalBottomSheetContent(
         onDismiss = {},
         items = listOf(
             BottomSheetItem(
@@ -231,4 +272,11 @@ enum class QuickPick {
     LUGGAGE_CLASSIFICATION,
     READ_GATE_NO,
     LANDMARK_LENS
+}
+
+enum class PlaceType {
+    PLACE,
+    ACTIVITY,
+    LODGING,
+    OTHER
 }
