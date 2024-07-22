@@ -1,10 +1,8 @@
 package com.example.jawlah.presentation.feature.plandetails
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -16,28 +14,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,8 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -64,10 +50,9 @@ import com.example.jawlah.R
 import com.example.jawlah.presentation.component.AddPlaceBottomSheet
 import com.example.jawlah.presentation.component.AiSuggestionCard
 import com.example.jawlah.presentation.component.FullScreenDialog
-import com.example.jawlah.presentation.component.FullScreenDialogExample
-import com.example.jawlah.presentation.component.PlaceType
 import com.example.jawlah.presentation.component.PlanDetailCard
 import com.example.jawlah.presentation.feature.destinations.AITestScreenDestination
+import com.example.jawlah.presentation.feature.destinations.BudgetScreenDestination
 import com.example.jawlah.presentation.util.SIDE_EFFECTS_KEY
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -89,6 +74,14 @@ fun PlanDetailsScreen(
                 PlanDetailsContract.Effect.Navigation.AITest -> navigator.navigate(
                     AITestScreenDestination
                 )
+
+                is PlanDetailsContract.Effect.Navigation.Budget -> {
+                    navigator.navigate(
+                        BudgetScreenDestination(
+                            viewModel.viewState.value.planId
+                        )
+                    )
+                }
             }
         }
     )
@@ -104,6 +97,7 @@ fun PlanDetailsScreenContent(
     onNavigationRequested: (PlanDetailsContract.Effect.Navigation) -> Unit,
 ) {
     LaunchedEffect(SIDE_EFFECTS_KEY) {
+        onEventSent(PlanDetailsContract.Event.Init)
         onEventSent(PlanDetailsContract.Event.LoadSuggestions)
     }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -137,7 +131,9 @@ fun PlanDetailsScreenContent(
             BottomAppBar(
                 actions = {
                     IconButton(
-                        onClick = { }
+                        onClick = {
+                            onNavigationRequested(PlanDetailsContract.Effect.Navigation.Budget("0"))
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.calculator),
@@ -204,7 +200,7 @@ fun PlanDetailsScreenContent(
                     }
                 }
 
-                if(showDialog) {
+                if (showDialog) {
                     FullScreenDialog()
                 }
 

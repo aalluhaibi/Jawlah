@@ -9,11 +9,13 @@ import io.realm.kotlin.types.RealmList
 class PlanDetailsContract {
     sealed class Event : ViewEvent {
         data class AddPlace(val place: String) : Event()
+        data object Init : Event()
         data object LoadSuggestions : Event()
     }
 
     data class State(
         val loading: Boolean = false,
+        val planId: String = "",
         val destinations: RealmList<String> = realmListOf(),
         val places: RealmList<String> = realmListOf(),
         val suggestedPlaces: RealmList<String> = realmListOf(),
@@ -33,6 +35,7 @@ class PlanDetailsContract {
         sealed class Navigation : Effect() {
             data object Back : Navigation()
             data object AITest : Navigation()
+            data class Budget(val planId: String) : Navigation()
         }
     }
 }

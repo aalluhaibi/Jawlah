@@ -103,7 +103,7 @@ class AITestViewModel @Inject constructor() :
         }
     }
 
-    fun shuffleChoices(questions: List<Question>): List<Question> {
+    private fun shuffleChoices(questions: List<Question>): List<Question> {
         return questions.map { question ->
             Question(question.text, question.choices.shuffled().toMutableList(), false)
         }

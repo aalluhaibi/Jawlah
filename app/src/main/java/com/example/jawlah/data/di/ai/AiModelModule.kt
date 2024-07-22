@@ -1,4 +1,4 @@
-package com.example.jawlah.data.remote.ai
+package com.example.jawlah.data.di.ai
 
 import com.example.jawlah.base.annotation.GeneralAiModel
 import com.example.jawlah.base.annotation.LandmarkLensAiModel

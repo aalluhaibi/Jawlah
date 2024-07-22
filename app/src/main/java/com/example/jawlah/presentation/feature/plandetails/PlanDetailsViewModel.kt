@@ -18,7 +18,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlanDetailsViewModel @Inject constructor(
-    private val realm: Realm,
     savedStateHandle: SavedStateHandle
 ) :
     BaseMviViewModel<PlanDetailsContract.Event, PlanDetailsContract.State, PlanDetailsContract.Effect>() {
@@ -36,6 +35,14 @@ class PlanDetailsViewModel @Inject constructor(
 
             PlanDetailsContract.Event.LoadSuggestions -> {
                 retrieveSuggestedPlaces("Recommend me places names (Only names I need) to visit in my trip to Milan split each place by new line. I looking for a response as an array of names separated by new line")
+            }
+
+            PlanDetailsContract.Event.Init -> {
+                setState {
+                    copy(
+                        planId = navArgsFromDestination.id
+                    )
+                }
             }
         }
     }

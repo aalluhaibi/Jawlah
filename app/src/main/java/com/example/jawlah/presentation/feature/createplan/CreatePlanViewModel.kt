@@ -13,12 +13,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreatePlanViewModel @Inject constructor(
-    private val myPlansRepo: MyPlansRepo,
-    private val realm: Realm
+    private val myPlansRepo: MyPlansRepo
 ) :
     BaseMviViewModel<CreatePlanContract.Event, CreatePlanContract.State, CreatePlanContract.Effect>() {
-
-    private val planId = UUID.randomUUID().toString()
 
     override fun setInitialState(): CreatePlanContract.State = CreatePlanContract.State()
 
@@ -75,6 +72,7 @@ class CreatePlanViewModel @Inject constructor(
 
     private fun savePlan() {
         viewModelScope.launch {
+            val planId = UUID.randomUUID().toString()
             runCatching {
                 myPlansRepo.insertPlan(
                     PlanEntity().apply {

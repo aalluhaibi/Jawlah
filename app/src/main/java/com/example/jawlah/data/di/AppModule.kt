@@ -1,4 +1,4 @@
-package com.example.jawlah.base
+package com.example.jawlah.data.di
 
 import android.content.Context
 import com.example.jawlah.BuildConfig
@@ -12,7 +12,9 @@ import com.example.jawlah.data.local.preference.AppPreferences
 import com.example.jawlah.data.local.preference.SecurePreferences
 import com.example.jawlah.data.local.realm.RealmPreferences
 import com.example.jawlah.data.local.realm.RealmSecurePreferences
+import com.example.jawlah.data.local.realm.plan.entity.BudgetEntity
 import com.example.jawlah.data.local.realm.plan.entity.PlanEntity
+import com.example.jawlah.data.local.realm.plan.entity.TransactionEntity
 import com.example.jawlah.data.remote.httpclient.httperror.AppHttpErrorMapper
 import com.example.jawlah.data.remote.httpclient.httperror.ErrorMapper
 import com.google.ai.client.generativeai.Chat
@@ -28,7 +30,6 @@ import io.ktor.client.engine.HttpClientEngineFactory
 import io.ktor.client.engine.android.Android
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -154,7 +155,9 @@ class AppModule {
     fun provideRealm(realmPreferences: RealmPreferences): Realm {
         val config = RealmConfiguration.Builder(
             schema = setOf(
-                PlanEntity::class
+                PlanEntity::class,
+                BudgetEntity::class,
+                TransactionEntity::class
             )
         ).compactOnLaunch()
             .encryptionKey(realmPreferences.getRealmKey())

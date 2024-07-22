@@ -1,5 +1,6 @@
 package com.example.jawlah.presentation.feature.myplans
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.jawlah.BuildConfig
 import com.example.jawlah.UiState
@@ -19,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyPlansViewModel @Inject constructor(
-    private val realm: Realm
+    private val realm: Realm,
 ) :
     BaseMviViewModel<MyPlansContract.Event, MyPlansContract.State, MyPlansContract.Effect>() {
 

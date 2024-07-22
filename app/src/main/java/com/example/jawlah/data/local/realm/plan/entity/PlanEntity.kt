@@ -9,6 +9,7 @@ import io.realm.kotlin.types.annotations.PrimaryKey
 class PlanEntity: RealmObject {
     @PrimaryKey
     var id: String = ""
+    var hasBudget: Boolean = false
     var name: String = ""
     var distenations: RealmList<String> = realmListOf()
     var startDate: Long = 0L
