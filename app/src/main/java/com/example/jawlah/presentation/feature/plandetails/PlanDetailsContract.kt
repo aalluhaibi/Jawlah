@@ -1,5 +1,6 @@
 package com.example.jawlah.presentation.feature.plandetails
 
+import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
 import com.example.jawlah.presentation.util.ViewEvent
 import com.example.jawlah.presentation.util.ViewSideEffect
 import com.example.jawlah.presentation.util.ViewState
@@ -8,7 +9,7 @@ import io.realm.kotlin.types.RealmList
 
 class PlanDetailsContract {
     sealed class Event : ViewEvent {
-        data class AddPlace(val place: String) : Event()
+        data class AddPlace(val place: PlaceEntity) : Event()
         data object Init : Event()
         data object LoadSuggestions : Event()
     }

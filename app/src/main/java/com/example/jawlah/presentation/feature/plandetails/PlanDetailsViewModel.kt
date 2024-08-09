@@ -4,6 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.jawlah.BuildConfig
 import com.example.jawlah.UiState
+import com.example.jawlah.base.network.ApiResult
+import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
+import com.example.jawlah.data.local.realm.plan.entity.PlaceType
+import com.example.jawlah.domain.budget.usecase.AddPlaceRequest
+import com.example.jawlah.domain.budget.usecase.AddPlaceUseCase
 import com.example.jawlah.presentation.feature.destinations.PlanDetailsScreenDestination
 import com.example.jawlah.presentation.util.BaseMviViewModel
 import com.google.ai.client.generativeai.GenerativeModel
@@ -18,6 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlanDetailsViewModel @Inject constructor(
+    private val addPlaceUseCase: AddPlaceUseCase,
     savedStateHandle: SavedStateHandle
 ) :
     BaseMviViewModel<PlanDetailsContract.Event, PlanDetailsContract.State, PlanDetailsContract.Effect>() {
@@ -30,7 +36,13 @@ class PlanDetailsViewModel @Inject constructor(
     override fun handleEvents(event: PlanDetailsContract.Event) {
         when (event) {
             is PlanDetailsContract.Event.AddPlace -> {
-
+                addPlace(PlaceEntity().apply {
+                    name = event.place.name
+                    planId = navArgsFromDestination.id
+                    type = PlaceType.Place
+                    locationUrl = event.place.locationUrl
+                    description = event.place.description
+                })
             }
 
             PlanDetailsContract.Event.LoadSuggestions -> {
@@ -58,7 +70,6 @@ class PlanDetailsViewModel @Inject constructor(
         }
     )
 
-
     private fun retrieveSuggestedPlaces(
         prompt: String
     ) {
@@ -81,6 +92,40 @@ class PlanDetailsViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 setEffect { PlanDetailsContract.Effect.Error(e.localizedMessage ?: "") }
+            }
+        }
+    }
+
+    private fun addPlace(place: PlaceEntity) {
+        viewModelScope.launch {
+            addPlaceUseCase(
+                AddPlaceRequest(place)
+            ).collect {
+                when (it) {
+                    is ApiResult.Error -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+
+                    ApiResult.Loading -> {
+                        setState {
+                            copy(loading = true)
+                        }
+                    }
+
+                    ApiResult.Offline -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+
+                    is ApiResult.Success -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+                }
             }
         }
     }

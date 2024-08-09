@@ -3,6 +3,7 @@ package com.example.jawlah.data.di.myplans
 import com.example.jawlah.base.dispatcher.Dispatcher
 import com.example.jawlah.data.local.realm.plan.MyPlanRepoImpl
 import com.example.jawlah.domain.budget.usecase.AddCategoryUseCase
+import com.example.jawlah.domain.budget.usecase.AddPlaceUseCase
 import com.example.jawlah.domain.budget.usecase.AddTotalIncomeUseCase
 import com.example.jawlah.domain.budget.usecase.AddTransactionUseCase
 import com.example.jawlah.domain.budget.usecase.CreateBudgetUseCase
@@ -36,6 +37,15 @@ class MyPlansModule {
         dispatcher: Dispatcher,
         repo: MyPlansRepo
     ): AddTransactionUseCase = AddTransactionUseCase(
+        dispatcher = dispatcher,
+        repo = repo
+    )
+
+    @Provides
+    fun provideAddPlaceUseCase(
+        dispatcher: Dispatcher,
+        repo: MyPlansRepo
+    ): AddPlaceUseCase = AddPlaceUseCase(
         dispatcher = dispatcher,
         repo = repo
     )

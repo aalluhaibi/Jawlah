@@ -2,6 +2,7 @@ package com.example.jawlah.data.local.realm.plan
 
 import com.example.jawlah.data.local.realm.plan.entity.BudgetEntity
 import com.example.jawlah.data.local.realm.plan.entity.CategoryEntity
+import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
 import com.example.jawlah.data.local.realm.plan.entity.PlanEntity
 import com.example.jawlah.data.local.realm.plan.entity.TransactionEntity
 import com.example.jawlah.domain.myplans.MyPlansRepo
@@ -28,6 +29,19 @@ class MyPlanRepoImpl(
                     endDate = plan.endDate
                 }
             )
+        }
+    }
+
+    override suspend fun insertPlace(place: PlaceEntity) {
+        realm.write {
+            val targetPlace =
+                query<PlanEntity>("id == $0", place.planId).find().firstOrNull()
+
+            if (targetPlace != null) {
+                targetPlace.places.add(place)
+            } else {
+                // TODO: Handle the case where the budget isn't found
+            }
         }
     }
 
