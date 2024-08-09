@@ -1,5 +1,7 @@
 package com.example.jawlah.presentation.feature.budget
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,12 +21,9 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -34,9 +33,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,7 +51,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.jawlah.R
 import com.example.jawlah.data.local.realm.plan.entity.TransactionEntity
+import com.example.jawlah.presentation.component.CategoryDialog
+import com.example.jawlah.presentation.component.ExpenseEntryDialog
 import com.example.jawlah.presentation.component.MainFab
+import com.example.jawlah.presentation.feature.myplans.MyPlansContract
 import com.example.jawlah.presentation.util.SIDE_EFFECTS_KEY
 import com.example.jawlah.presentation.util.convertLongToDateString
 import com.ramcosta.composedestinations.annotation.Destination
@@ -54,6 +62,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Destination(navArgsDelegate = BudgetScreenNavArgs::class)
 @Composable
 fun BudgetScreen(
@@ -74,6 +83,7 @@ fun BudgetScreen(
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetScreenContent(
@@ -87,7 +97,9 @@ fun BudgetScreenContent(
     LaunchedEffect(SIDE_EFFECTS_KEY) {
         onEvent(BudgetContract.Event.LoadBudget)
     }
-
+    var showTransactionDialog by remember { mutableStateOf(false) }
+    var showCategoryDialog by remember { mutableStateOf(false) }
+    var showIncomeDialog by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         modifier = Modifier
@@ -110,6 +122,18 @@ fun BudgetScreenContent(
                         )
                     }
                 },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            showCategoryDialog = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Options"
+                        )
+                    }
+                },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -119,10 +143,48 @@ fun BudgetScreenContent(
                 text = "Add transaction",
                 icon = Icons.Default.Add,
             ) {
-                onEvent(BudgetContract.Event.OnAddTransactionClick)
+                showTransactionDialog = true
             }
         },
     ) { paddingValues ->
+
+        if(showCategoryDialog) {
+            CategoryDialog(
+                onDismissRequest = { showCategoryDialog = false },
+                onConfirm = { category ->
+                    showCategoryDialog = false
+                    onEvent(BudgetContract.Event.InsertCategory(category))
+                }
+            )
+        }
+
+        if(showIncomeDialog) {
+            CategoryDialog(
+                onDismissRequest = { showIncomeDialog = false },
+                onConfirm = { income ->
+                    showIncomeDialog = false
+                    onEvent(BudgetContract.Event.AddIncome(income))
+                }
+            )
+        }
+
+        if (showTransactionDialog) {
+            ExpenseEntryDialog(
+                categories = viewState.categories.map { it.name },
+                onDismiss = {
+                    showTransactionDialog = false
+                }
+            ) { amount, description, selectedCategory, selectedDate, selectedTime ->
+                onEvent(BudgetContract.Event.OnAddTransactionClick(TransactionEntity().apply {
+                    this.amount = amount.toString()
+                    this.description = description
+                    this.category = selectedCategory
+                    this.date = selectedDate
+                    this.time = selectedTime
+                }))
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -144,17 +206,17 @@ fun BudgetScreenContent(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "$434.00",
+                            text = viewState.totalExpense.toString(),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Expenses",
+                            text = stringResource(R.string.expenses),
                             fontSize = 16.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         LinearProgressIndicator(
-                            progress = { 0.5f },
+                            progress = { viewState.expensePercentage },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
@@ -163,24 +225,27 @@ fun BudgetScreenContent(
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 8.dp),
-                    elevation = CardDefaults.elevatedCardElevation()
+                    elevation = CardDefaults.elevatedCardElevation(),
+                    onClick = {
+                        showIncomeDialog = true
+                    }
                 ) {
                     Column(
                         modifier = Modifier
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "$250.00",
+                            text = viewState.totalIncome.toString(),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Income",
+                            text = stringResource(R.string.income),
                             fontSize = 16.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         LinearProgressIndicator(
-                            progress = { 0.8f },
+                            progress = { viewState.incomePercentage },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
@@ -263,6 +328,7 @@ fun TransactionItem(transaction: TransactionEntity) {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun BudgetScreenContentPreview() {

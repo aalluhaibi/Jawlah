@@ -1,6 +1,7 @@
 package com.example.jawlah.data.local.realm.plan
 
 import com.example.jawlah.data.local.realm.plan.entity.BudgetEntity
+import com.example.jawlah.data.local.realm.plan.entity.CategoryEntity
 import com.example.jawlah.data.local.realm.plan.entity.PlanEntity
 import com.example.jawlah.data.local.realm.plan.entity.TransactionEntity
 import com.example.jawlah.domain.myplans.MyPlansRepo
@@ -35,7 +36,10 @@ class MyPlanRepoImpl(
     }
 
     override suspend fun insertBudget(budget: BudgetEntity) {
-        val uuid = UUID.randomUUID().toString()
+        val uuid = if (budget.id.isEmpty())
+            UUID.randomUUID().toString()
+        else budget.id
+
         realm.write {
             copyToRealm(
                 BudgetEntity().apply {
@@ -61,10 +65,35 @@ class MyPlanRepoImpl(
         }
     }
 
+    override suspend fun insertTotalIncome(budgetId: String, totalIncome: Double) {
+        realm.write {
+            val targetBudget =
+                query<BudgetEntity>("id == $0", budgetId).find().firstOrNull()
+
+            if (targetBudget != null) {
+                targetBudget.totalIncome = totalIncome
+            } else {
+                // TODO: Handle the case where the budget isn't found
+            }
+        }
+    }
+
     override suspend fun retrieveBudget(planId: String): BudgetEntity {
-        return realm.query<BudgetEntity>(
+        val budget = realm.query<BudgetEntity>(
             "planId == $0",
             planId
         ).find().firstOrNull() ?: BudgetEntity()
+
+        return budget
+    }
+
+    override suspend fun retrieveCategory(): List<CategoryEntity> {
+        return realm.query<CategoryEntity>().find()
+    }
+
+    override suspend fun insertCategory(categoryEntity: CategoryEntity) {
+        realm.write {
+            copyToRealm(categoryEntity)
+        }
     }
 }

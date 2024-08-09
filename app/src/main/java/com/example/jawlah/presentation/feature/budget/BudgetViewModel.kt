@@ -4,13 +4,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.jawlah.base.network.ApiResult
 import com.example.jawlah.data.local.realm.plan.entity.BudgetEntity
+import com.example.jawlah.data.local.realm.plan.entity.CategoryEntity
 import com.example.jawlah.data.local.realm.plan.entity.TransactionEntity
+import com.example.jawlah.domain.budget.usecase.AddCategoryUseCase
+import com.example.jawlah.domain.budget.usecase.AddTotalIncomeRequest
+import com.example.jawlah.domain.budget.usecase.AddTotalIncomeUseCase
 import com.example.jawlah.domain.budget.usecase.AddTransactionRequest
 import com.example.jawlah.domain.budget.usecase.AddTransactionUseCase
 import com.example.jawlah.domain.budget.usecase.CreateBudgetRequest
 import com.example.jawlah.domain.budget.usecase.CreateBudgetUseCase
 import com.example.jawlah.domain.budget.usecase.Request
 import com.example.jawlah.domain.budget.usecase.RetrieveBudgetUseCase
+import com.example.jawlah.domain.budget.usecase.RetrieveCategoriesUseCase
 import com.example.jawlah.presentation.feature.destinations.BudgetScreenDestination
 import com.example.jawlah.presentation.util.BaseMviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +27,9 @@ class BudgetViewModel @Inject constructor(
     private val retrieveBudgetUseCase: RetrieveBudgetUseCase,
     private val addTransactionUseCase: AddTransactionUseCase,
     private val createBudgetUseCase: CreateBudgetUseCase,
+    private val addTotalIncomeUseCase: AddTotalIncomeUseCase,
+    private val retrieveCategoriesUseCase: RetrieveCategoriesUseCase,
+    private val addCategoryUseCase: AddCategoryUseCase,
     savedStateHandle: SavedStateHandle
 ) : BaseMviViewModel<BudgetContract.Event, BudgetContract.State, BudgetContract.Effect>() {
     override fun setInitialState(): BudgetContract.State = BudgetContract.State()
@@ -32,8 +40,15 @@ class BudgetViewModel @Inject constructor(
     override fun handleEvents(event: BudgetContract.Event) {
         when (event) {
             BudgetContract.Event.InsertTransaction -> TODO()
-            BudgetContract.Event.OnAddTransactionClick -> {
-                addTransaction()
+            is BudgetContract.Event.OnAddTransactionClick -> {
+                addTransaction(TransactionEntity().apply {
+                    amount = event.transactionEntity.amount
+                    description = event.transactionEntity.description
+                    category = event.transactionEntity.category
+                    budgetId = viewState.value.budgetId
+                    date = event.transactionEntity.date
+                    time = event.transactionEntity.time
+                })
             }
 
             is BudgetContract.Event.OnDeleteTransactionClick -> TODO()
@@ -49,6 +64,7 @@ class BudgetViewModel @Inject constructor(
                     copy(planId = navArgsFromDestination.id)
                 }
                 retrieveBudget()
+                retrieveCategories()
             }
 
             is BudgetContract.Event.OnSelectedFilterChanged -> {
@@ -56,22 +72,31 @@ class BudgetViewModel @Inject constructor(
                     copy(selectedFilterIndex = event.index)
                 }
             }
+
+            is BudgetContract.Event.InsertCategory -> {
+                insertCategory(event.category)
+            }
+
+            is BudgetContract.Event.AddIncome -> {
+                addToBudget(event.income.toDouble())
+            }
         }
     }
 
-    private fun addTransaction() {
+    private fun addTransaction(transactionEntity: TransactionEntity) {
         viewModelScope.launch {
             addTransactionUseCase(
                 AddTransactionRequest(
                     transaction = TransactionEntity().apply {
-                        amount = "50.0"
-                        description = "Test description"
-                        category = "Restaurant"
+                        amount = transactionEntity.amount
+                        description = transactionEntity.description
+                        category = transactionEntity.category
                         budgetId = viewState.value.budgetId
+                        date = transactionEntity.date
+                        time = transactionEntity.time
                     }
                 )
             ).collect { result ->
-
                 when (result) {
                     is ApiResult.Error -> {
 
@@ -82,7 +107,17 @@ class BudgetViewModel @Inject constructor(
                     }
 
                     ApiResult.Offline -> {}
-                    is ApiResult.Success -> {}
+                    is ApiResult.Success -> {
+                        setState {
+                            copy(
+                                loading = false,
+                                totalExpense = calculateTotalExpense(viewState.value.transactions),
+                                expensePercentage = (calculateTotalExpense(viewState.value.transactions) / viewState.value.totalIncome).toFloat(),
+                                incomePercentage = (1 - (calculateTotalExpense(viewState.value.transactions) / viewState.value.totalIncome).toFloat())
+                            )
+                        }
+                        retrieveBudget()
+                    }
                 }
             }
         }
@@ -111,13 +146,15 @@ class BudgetViewModel @Inject constructor(
                         if (result.value.id.isEmpty()) {
                             createBudget()
                         }
-
+                        val expense = calculateTotalExpense(viewState.value.transactions)
                         setState {
                             copy(
                                 loading = false,
                                 budgetId = result.value.id,
                                 totalIncome = result.value.totalIncome,
-                                totalExpense = result.value.totalExpense,
+                                totalExpense = calculateTotalExpense(result.value.transactionEntities),
+                                expensePercentage = (calculateTotalExpense(result.value.transactionEntities) / viewState.value.totalIncome).toFloat(),
+                                incomePercentage = (1 - (calculateTotalExpense(result.value.transactionEntities) / viewState.value.totalIncome).toFloat()),
                                 transactions = result.value.transactionEntities.toMutableList(),
                                 transactionsMap = result.value.transactionEntities.groupBy { it.date }
                                     .toMutableMap()
@@ -139,11 +176,11 @@ class BudgetViewModel @Inject constructor(
         viewModelScope.launch {
             val request = CreateBudgetRequest(budget = BudgetEntity().apply {
                 planId = navArgsFromDestination.id
-                totalIncome = 0.0
-                totalExpense = 0.0
+                totalIncome = viewState.value.totalIncome
+                totalExpense = viewState.value.totalExpense
             })
             createBudgetUseCase(request).collect { result ->
-                 when (result) {
+                when (result) {
                     is ApiResult.Error -> {
                         setEffect {
                             BudgetContract.Effect.Error(result.message)
@@ -164,7 +201,11 @@ class BudgetViewModel @Inject constructor(
 
                     is ApiResult.Success -> {
                         setState {
-                            copy(loading = false)
+                            copy(
+                                loading = false,
+                                expensePercentage = (calculateTotalExpense(viewState.value.transactions) / viewState.value.totalIncome).toFloat(),
+                                incomePercentage = (1 - (calculateTotalExpense(viewState.value.transactions) / viewState.value.totalIncome).toFloat())
+                            )
                         }
                         retrieveBudget()
                     }
@@ -172,4 +213,100 @@ class BudgetViewModel @Inject constructor(
             }
         }
     }
+
+    private fun addToBudget(income: Double) {
+        viewModelScope.launch {
+            val request = AddTotalIncomeRequest(
+                budgetId = viewState.value.budgetId,
+                totalIncome = income
+            )
+
+            addTotalIncomeUseCase(request).collect { result ->
+                when (result) {
+                    is ApiResult.Error -> {
+                        setEffect {
+                            BudgetContract.Effect.Error(result.message)
+                        }
+                    }
+
+                    ApiResult.Loading -> {
+                        setState {
+                            copy(loading = true)
+                        }
+                    }
+
+                    ApiResult.Offline -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+
+                    is ApiResult.Success -> {
+                        setState {
+                            copy(
+                                loading = false,
+                                expensePercentage = (calculateTotalExpense(viewState.value.transactions) / viewState.value.totalIncome).toFloat(),
+                                incomePercentage = (1 - (calculateTotalExpense(viewState.value.transactions) / viewState.value.totalIncome)).toFloat()
+                            )
+                        }
+                        retrieveBudget()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun retrieveCategories() {
+        viewModelScope.launch {
+            retrieveCategoriesUseCase(null).collect { result ->
+                when (result) {
+                    is ApiResult.Error -> {}
+                    ApiResult.Loading -> {
+
+                    }
+
+                    ApiResult.Offline -> {}
+                    is ApiResult.Success -> {
+                        setState {
+                            copy(categories = result.value)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun insertCategory(category: String) {
+        viewModelScope.launch {
+            val id = java.util.UUID.randomUUID().toString()
+            addCategoryUseCase(CategoryEntity().apply {
+                this.id = id
+                this.name = category
+            }).collect { result ->
+                when (result) {
+                    is ApiResult.Error -> {}
+                    ApiResult.Loading -> {
+
+                    }
+
+                    ApiResult.Offline -> {}
+                    is ApiResult.Success -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
+fun calculateTotalExpense(transactions: List<TransactionEntity>): Double {
+    var totalExpense = 0.0
+    for (transaction in transactions) {
+        val amount = transaction.amount.toDouble()
+        totalExpense += amount
+    }
+    return totalExpense
+}
+
