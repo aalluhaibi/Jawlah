@@ -22,4 +22,7 @@
     <string name="expenses">Expenses</string>
     <string name="location">Location</string>
     <string name="details">Details</string>
+    <string name="delete">Delete</string>
+    <string name="enter_category">Enter Category</string>
+    <string name="enter_income">Enter Income</string>
 </resources>

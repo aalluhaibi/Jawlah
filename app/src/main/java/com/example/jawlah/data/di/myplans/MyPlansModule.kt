@@ -7,6 +7,7 @@ import com.example.jawlah.domain.budget.usecase.AddPlaceUseCase
 import com.example.jawlah.domain.budget.usecase.AddTotalIncomeUseCase
 import com.example.jawlah.domain.budget.usecase.AddTransactionUseCase
 import com.example.jawlah.domain.budget.usecase.CreateBudgetUseCase
+import com.example.jawlah.domain.budget.usecase.DeleteTransactionUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveBudgetUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveCategoriesUseCase
 import com.example.jawlah.domain.budget.usecase.RetrievePlacesUseCase
@@ -38,6 +39,15 @@ class MyPlansModule {
         dispatcher: Dispatcher,
         repo: MyPlansRepo
     ): AddTransactionUseCase = AddTransactionUseCase(
+        dispatcher = dispatcher,
+        repo = repo
+    )
+
+    @Provides
+    fun provideDeleteTransactionUseCase(
+        dispatcher: Dispatcher,
+        repo: MyPlansRepo
+    ): DeleteTransactionUseCase = DeleteTransactionUseCase(
         dispatcher = dispatcher,
         repo = repo
     )

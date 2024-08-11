@@ -15,6 +15,7 @@ interface MyPlansRepo {
     suspend fun retrievePlans(): List<PlanEntity>
     suspend fun insertBudget(budget: BudgetEntity)
     suspend fun insertTransaction(transactionEntity: TransactionEntity)
+    suspend fun deleteTransaction(transactionEntity: TransactionEntity)
     suspend fun insertTotalIncome(budgetId: String, totalIncome: Double)
     suspend fun retrieveBudget(planId: String): BudgetEntity
     suspend fun retrieveCategory(): List<CategoryEntity>

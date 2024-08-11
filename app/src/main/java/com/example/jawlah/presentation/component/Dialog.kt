@@ -38,6 +38,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -136,23 +137,35 @@ fun FullScreenDialog() {
 fun ExpenseEntryDialog(
     categories: List<String> = listOf(),
     onDismiss: () -> Unit,
-    onConfirm: (amount: Double, description: String, category: String, date: Long, time: Long) -> Unit
+    onConfirm: (amount: String, description: String, category: String, date: Long, time: Long) -> Unit
 ) {
-    var amount by remember { mutableStateOf(0.0) }
+    var amount by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf(0L) }
-    val selectedTime by remember { mutableStateOf(0L) }
+    var selectedDate by remember {
+        mutableLongStateOf(
+            LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        )
+    }
+    val selectedTime by remember { mutableLongStateOf(0L) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            Button(onClick = { onConfirm(amount, description, selectedCategory, selectedDate, selectedTime) }) {
-                Text("Save")
+            Button(onClick = {
+                onConfirm(
+                    amount,
+                    description,
+                    selectedCategory,
+                    selectedDate,
+                    selectedTime
+                )
+            }) {
+                Text("Add")
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
         },
@@ -160,8 +173,8 @@ fun ExpenseEntryDialog(
         text = {
             Column {
                 OutlinedTextField(
-                    value = amount.toString(),
-                    onValueChange = { amount = it.toDoubleOrNull() ?: 0.0 },
+                    value = amount,
+                    onValueChange = { amount = it },
                     label = { Text("Amount") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -370,6 +383,8 @@ fun CustomDatePickerDialog(onDateSelected: (Long) -> Unit, onDismiss: () -> Unit
 
 @Composable
 fun CategoryDialog(
+    keyboardType: KeyboardType = KeyboardType.Text,
+    label: String = stringResource(R.string.enter_category),
     onDismissRequest: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
@@ -386,7 +401,8 @@ fun CategoryDialog(
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text("Enter category") },
+                    label = { Text(label) },
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
                     modifier = Modifier.fillMaxWidth()
                 )
 

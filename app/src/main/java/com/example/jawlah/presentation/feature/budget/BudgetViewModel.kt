@@ -13,6 +13,8 @@ import com.example.jawlah.domain.budget.usecase.AddTransactionRequest
 import com.example.jawlah.domain.budget.usecase.AddTransactionUseCase
 import com.example.jawlah.domain.budget.usecase.CreateBudgetRequest
 import com.example.jawlah.domain.budget.usecase.CreateBudgetUseCase
+import com.example.jawlah.domain.budget.usecase.DeleteTransactionRequest
+import com.example.jawlah.domain.budget.usecase.DeleteTransactionUseCase
 import com.example.jawlah.domain.budget.usecase.Request
 import com.example.jawlah.domain.budget.usecase.RetrieveBudgetUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveCategoriesUseCase
@@ -26,6 +28,7 @@ import javax.inject.Inject
 class BudgetViewModel @Inject constructor(
     private val retrieveBudgetUseCase: RetrieveBudgetUseCase,
     private val addTransactionUseCase: AddTransactionUseCase,
+    private val deleteTransactionUseCase: DeleteTransactionUseCase,
     private val createBudgetUseCase: CreateBudgetUseCase,
     private val addTotalIncomeUseCase: AddTotalIncomeUseCase,
     private val retrieveCategoriesUseCase: RetrieveCategoriesUseCase,
@@ -39,7 +42,6 @@ class BudgetViewModel @Inject constructor(
 
     override fun handleEvents(event: BudgetContract.Event) {
         when (event) {
-            BudgetContract.Event.InsertTransaction -> TODO()
             is BudgetContract.Event.OnAddTransactionClick -> {
                 addTransaction(TransactionEntity().apply {
                     amount = event.transactionEntity.amount
@@ -48,10 +50,14 @@ class BudgetViewModel @Inject constructor(
                     budgetId = viewState.value.budgetId
                     date = event.transactionEntity.date
                     time = event.transactionEntity.time
+                    transactionType = event.transactionEntity.transactionType
                 })
             }
 
-            is BudgetContract.Event.OnDeleteTransactionClick -> TODO()
+            is BudgetContract.Event.OnDeleteTransactionClick -> {
+                deleteTransaction(event.transactionEntity)
+            }
+
             is BudgetContract.Event.OnDescriptionChanged -> TODO()
             is BudgetContract.Event.OnEditTransactionClick -> TODO()
             BudgetContract.Event.PaymentCategory -> TODO()
@@ -122,6 +128,29 @@ class BudgetViewModel @Inject constructor(
                                 incomePercentage = (1 - (calculateTotalExpense(viewState.value.transactions) / viewState.value.totalIncome).toFloat())
                             )
                         }
+                        retrieveBudget()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun deleteTransaction(transactionEntity: TransactionEntity) {
+        viewModelScope.launch {
+            deleteTransactionUseCase(DeleteTransactionRequest(transaction = transactionEntity)).collect { result ->
+                when (result) {
+                    is ApiResult.Error -> {
+                    }
+
+                    ApiResult.Loading -> {
+
+                    }
+
+                    ApiResult.Offline -> {
+
+                    }
+
+                    is ApiResult.Success -> {
                         retrieveBudget()
                     }
                 }
@@ -276,7 +305,7 @@ class BudgetViewModel @Inject constructor(
                     ApiResult.Offline -> {}
                     is ApiResult.Success -> {
                         setState {
-                            copy(categories = result.value)
+                            copy(categories = result.value.toMutableList())
                         }
                     }
                 }
@@ -302,6 +331,7 @@ class BudgetViewModel @Inject constructor(
                         setState {
                             copy(loading = false)
                         }
+                        retrieveCategories()
                     }
                 }
             }

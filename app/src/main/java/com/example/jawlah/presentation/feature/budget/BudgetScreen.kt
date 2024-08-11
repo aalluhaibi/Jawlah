@@ -2,6 +2,7 @@ package com.example.jawlah.presentation.feature.budget
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
@@ -44,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -148,8 +153,10 @@ fun BudgetScreenContent(
         },
     ) { paddingValues ->
 
-        if(showCategoryDialog) {
+        if (showCategoryDialog) {
             CategoryDialog(
+                label = stringResource(R.string.enter_category),
+                keyboardType = KeyboardType.Text,
                 onDismissRequest = { showCategoryDialog = false },
                 onConfirm = { category ->
                     showCategoryDialog = false
@@ -158,8 +165,10 @@ fun BudgetScreenContent(
             )
         }
 
-        if(showIncomeDialog) {
+        if (showIncomeDialog) {
             CategoryDialog(
+                label = stringResource(R.string.enter_income),
+                keyboardType = KeyboardType.Number,
                 onDismissRequest = { showIncomeDialog = false },
                 onConfirm = { income ->
                     showIncomeDialog = false
@@ -176,12 +185,14 @@ fun BudgetScreenContent(
                 }
             ) { amount, description, selectedCategory, selectedDate, selectedTime ->
                 onEvent(BudgetContract.Event.OnAddTransactionClick(TransactionEntity().apply {
-                    this.amount = amount.toString()
+                    this.transactionType = TransactionType.EXPENSE
+                    this.amount = amount
                     this.description = description
                     this.category = selectedCategory
                     this.date = selectedDate
                     this.time = selectedTime
                 }))
+                showTransactionDialog = false
             }
         }
 
@@ -291,7 +302,9 @@ fun BudgetScreenContent(
                     }
 
                     items(value) { transaction ->
-                        TransactionItem(transaction)
+                        TransactionItem(transaction) {
+                            onEvent(BudgetContract.Event.OnDeleteTransactionClick(transaction))
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
@@ -301,31 +314,48 @@ fun BudgetScreenContent(
 }
 
 @Composable
-fun TransactionItem(transaction: TransactionEntity) {
-    Column {
-        val amount =
-            if (transaction.transactionType == TransactionType.EXPENSE) "-${transaction.amount}" else "+${transaction.amount}"
-        Text(
-            text = amount,
-            style = TextStyle(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+fun TransactionItem(
+    transaction: TransactionEntity,
+    onItemClicked: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Column {
+            val amount =
+                "-${transaction.amount}"
+            Text(
+                text = amount,
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                )
             )
-        )
-        Text(
-            text = transaction.description,
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal
+            Text(
+                text = transaction.description,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal
+                )
             )
-        )
-        Text(
-            text = transaction.category,
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal
+            Text(
+                text = transaction.category,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal
+                )
             )
-        )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+
+        IconButton(onClick = { onItemClicked() }) {
+            Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = stringResource(id = R.string.delete)
+            )
+        }
     }
 }
 

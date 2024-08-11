@@ -88,6 +88,27 @@ class MyPlanRepoImpl(
         }
     }
 
+    override suspend fun deleteTransaction(transactionEntity: TransactionEntity) {
+        realm.write {
+            val targetBudget =
+                query<BudgetEntity>("id == $0", transactionEntity.budgetId).find().firstOrNull()
+
+            if (targetBudget != null) {
+                val transactionToDelete =
+                    targetBudget.transactionEntities.find { it == transactionEntity }
+
+                if (transactionToDelete != null) {
+                    targetBudget.transactionEntities.remove(transactionToDelete)
+
+                } else {
+                    // Handle the case where the transaction isn't found within the budget
+                }
+            } else {
+                // Handle the case where the budget isn't found
+            }
+        }
+    }
+
     override suspend fun insertTotalIncome(budgetId: String, totalIncome: Double) {
         realm.write {
             val targetBudget =
@@ -96,7 +117,7 @@ class MyPlanRepoImpl(
             if (targetBudget != null) {
                 targetBudget.totalIncome = totalIncome
             } else {
-                // TODO: Handle the case where the budget isn't found
+                // Handle the case where the budget isn't found
             }
         }
     }

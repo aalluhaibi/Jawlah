@@ -15,9 +15,8 @@ class BudgetContract {
         data object LoadBudget : Event()
         data class OnAddTransactionClick(val transactionEntity: TransactionEntity) : Event()
         data class OnEditTransactionClick(val id: String) : Event()
-        data class OnDeleteTransactionClick(val id: String) : Event()
+        data class OnDeleteTransactionClick(val transactionEntity: TransactionEntity) : Event()
         data class OnSelectedFilterChanged(val index: Int) : Event()
-        data object InsertTransaction : Event()
         data class InsertCategory(val category: String) : Event()
         data class AddIncome(val income: String) : Event()
         data class SelectTransactionType(val transactionType: TransactionType) : Event()
@@ -38,7 +37,7 @@ class BudgetContract {
         val expensePercentage: Float = 0.0f,
         val incomePercentage: Float = 0.0f,
         val selectedFilterIndex: Int = 0,
-        val categories: List<CategoryEntity> = listOf(),
+        val categories: MutableList<CategoryEntity> = mutableStateListOf(),
         val transactions: MutableList<TransactionEntity> = mutableStateListOf(),
         val filteredTransactions: MutableMap<Long, List<TransactionEntity>> =mutableMapOf(),
         val transactionsMap: MutableMap<Long, List<TransactionEntity>> = mutableMapOf()

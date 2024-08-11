@@ -58,6 +58,7 @@ fun CreatePlanScreen(
                     navigator.navigate(
                         PlanDetailsScreenDestination(PlanDetailsScreenNavArgs(request.id))
                     )
+                    navigator.navigateUp()
                 }
             }
         }
