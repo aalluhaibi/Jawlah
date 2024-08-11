@@ -255,7 +255,9 @@ fun BudgetScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             val options = listOf("All", "Week", "Month", "Year")
-            SingleChoiceSegmentedButtonRow {
+            SingleChoiceSegmentedButtonRow(
+                modifier = modifier.fillMaxWidth()
+            ) {
                 options.forEachIndexed { index, option ->
                     SegmentedButton(
                         shape = SegmentedButtonDefaults.itemShape(
@@ -280,7 +282,7 @@ fun BudgetScreenContent(
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                viewState.transactionsMap.entries.forEach { (key, value) ->
+                viewState.filteredTransactions.entries.forEach { (key, value) ->
                     item {
                         FilterChip(selected = true, onClick = {}, label = {
                             Text(text = convertLongToDateString(key))

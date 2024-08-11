@@ -40,6 +40,7 @@ class BudgetContract {
         val selectedFilterIndex: Int = 0,
         val categories: List<CategoryEntity> = listOf(),
         val transactions: MutableList<TransactionEntity> = mutableStateListOf(),
+        val filteredTransactions: MutableMap<Long, List<TransactionEntity>> =mutableMapOf(),
         val transactionsMap: MutableMap<Long, List<TransactionEntity>> = mutableMapOf()
     ) : ViewState
 

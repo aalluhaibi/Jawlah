@@ -69,7 +69,13 @@ class BudgetViewModel @Inject constructor(
 
             is BudgetContract.Event.OnSelectedFilterChanged -> {
                 setState {
-                    copy(selectedFilterIndex = event.index)
+                    copy(
+                        selectedFilterIndex = event.index,
+                        filteredTransactions = filterTransactions(
+                            viewState.value.transactionsMap,
+                            event.index
+                        )
+                    )
                 }
             }
 
@@ -156,6 +162,8 @@ class BudgetViewModel @Inject constructor(
                                 expensePercentage = (calculateTotalExpense(result.value.transactionEntities) / result.value.totalIncome).toFloat(),
                                 incomePercentage = (1 - (calculateTotalExpense(result.value.transactionEntities) / result.value.totalIncome).toFloat()),
                                 transactions = result.value.transactionEntities.toMutableList(),
+                                filteredTransactions = result.value.transactionEntities.groupBy { it.date }
+                                    .toMutableMap(),
                                 transactionsMap = result.value.transactionEntities.groupBy { it.date }
                                     .toMutableMap()
                             )
@@ -299,14 +307,41 @@ class BudgetViewModel @Inject constructor(
             }
         }
     }
-}
 
-fun calculateTotalExpense(transactions: List<TransactionEntity>): Double {
-    var totalExpense = 0.0
-    for (transaction in transactions) {
-        val amount = transaction.amount.toDouble()
-        totalExpense += amount
+    private fun filterTransactions(
+        transactionsMap: MutableMap<Long, List<TransactionEntity>>,
+        filter: Int
+    ): MutableMap<Long, List<TransactionEntity>> {
+        val currentTime = System.currentTimeMillis()
+
+        return when (filter) {
+            0 -> transactionsMap // No filtering
+            1 -> {
+                val oneWeekAgo = currentTime - 7 * 24 * 60 * 60 * 1000  // 7 days in milliseconds
+                transactionsMap.filterKeys { it >= oneWeekAgo }.toMutableMap()
+            }
+
+            2 -> {
+                val oneMonthAgo = currentTime - 30L * 24 * 60 * 60 * 1000
+                transactionsMap.filterKeys { it >= oneMonthAgo }.toMutableMap()
+            }
+
+            3 -> {
+                val oneYearAgo = currentTime - 365L * 24 * 60 * 60 * 1000
+                transactionsMap.filterKeys { it >= oneYearAgo }.toMutableMap()
+            }
+
+            else -> transactionsMap // return the original map
+        }
     }
-    return totalExpense
+
+    private fun calculateTotalExpense(transactions: List<TransactionEntity>): Double {
+        var totalExpense = 0.0
+        for (transaction in transactions) {
+            val amount = transaction.amount.toDouble()
+            totalExpense += amount
+        }
+        return totalExpense
+    }
 }
 
