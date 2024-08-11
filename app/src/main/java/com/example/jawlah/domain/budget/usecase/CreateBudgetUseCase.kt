@@ -4,8 +4,6 @@ import com.example.jawlah.base.dispatcher.Dispatcher
 import com.example.jawlah.base.usecase.FlowUseCaseWrapper
 import com.example.jawlah.data.local.realm.plan.entity.BudgetEntity
 import com.example.jawlah.domain.myplans.MyPlansRepo
-import io.realm.kotlin.query.RealmResults
-import kotlinx.coroutines.flow.first
 
 class RetrieveBudgetUseCase(
     dispatcher: Dispatcher,

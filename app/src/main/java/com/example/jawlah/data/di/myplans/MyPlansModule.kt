@@ -1,5 +1,6 @@
 package com.example.jawlah.data.di.myplans
 
+import com.example.jawlah.base.annotation.GeneralAiModel
 import com.example.jawlah.base.dispatcher.Dispatcher
 import com.example.jawlah.data.local.realm.plan.MyPlanRepoImpl
 import com.example.jawlah.domain.budget.usecase.AddCategoryUseCase
@@ -11,7 +12,9 @@ import com.example.jawlah.domain.budget.usecase.DeleteTransactionUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveBudgetUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveCategoriesUseCase
 import com.example.jawlah.domain.budget.usecase.RetrievePlacesUseCase
+import com.example.jawlah.domain.budget.usecase.RetrieveSuggestedPlacesUseCase
 import com.example.jawlah.domain.myplans.MyPlansRepo
+import com.google.ai.client.generativeai.GenerativeModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,7 +26,10 @@ import io.realm.kotlin.Realm
 class MyPlansModule {
 
     @Provides
-    fun provideMyPlansRepo(realm: Realm): MyPlansRepo = MyPlanRepoImpl(realm)
+    fun provideMyPlansRepo(
+        realm: Realm,
+        @GeneralAiModel generativeModel: GenerativeModel
+    ): MyPlansRepo = MyPlanRepoImpl(realm, generativeModel)
 
     @Provides
     fun provideRetrieveBudgetUseCase(
@@ -93,6 +99,15 @@ class MyPlansModule {
         dispatcher: Dispatcher,
         repo: MyPlansRepo
     ): RetrievePlacesUseCase = RetrievePlacesUseCase(
+        dispatcher = dispatcher,
+        repo = repo
+    )
+
+    @Provides
+    fun provideRetrieveSuggestedPlacesUseCase(
+        dispatcher: Dispatcher,
+        repo: MyPlansRepo
+    ): RetrieveSuggestedPlacesUseCase = RetrieveSuggestedPlacesUseCase(
         dispatcher = dispatcher,
         repo = repo
     )

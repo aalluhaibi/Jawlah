@@ -25,7 +25,7 @@ class MyPlansContract {
 
         sealed class Navigation: Effect() {
             data object NavigateToCreateNewPlan: Navigation()
-            data class NavigateToPlanDetails(val id: String): Navigation()
+            data class NavigateToPlanDetails(val id: String, val listOfDestinations: String): Navigation()
             data object AskGemi: Navigation()
         }
     }

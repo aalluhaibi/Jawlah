@@ -248,13 +248,16 @@ fun ExpenseEntryDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceEntryDialog(
+    name: String = "",
+    description: String = "",
+    locationUrl: String = "",
     types: List<String> = listOf("PLACE", "ACTIVITY", "LODGING", "OTHER"),
     onDismiss: () -> Unit,
     onConfirm: (name: String, description: String, locationUrl: String, type: String) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var locationUrl by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(name) }
+    var description by remember { mutableStateOf(description) }
+    var locationUrl by remember { mutableStateOf(locationUrl) }
     var type by remember { mutableStateOf("") }
 
     AlertDialog(
@@ -272,7 +275,7 @@ fun PlaceEntryDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
         },

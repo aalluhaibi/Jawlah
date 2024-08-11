@@ -17,9 +17,14 @@ class PlanDetailsContract {
 
     data class State(
         val loading: Boolean = false,
+        val aiLoading: Boolean = true,
         val planId: String = "",
         val destinations: RealmList<String> = realmListOf(),
+        val locations: MutableList<PlaceEntity> = mutableStateListOf(),
         val places: MutableList<PlaceEntity> = mutableStateListOf(),
+        val activities: MutableList<PlaceEntity> = mutableStateListOf(),
+        val lodging: MutableList<PlaceEntity> = mutableStateListOf(),
+        val others: MutableList<PlaceEntity> = mutableStateListOf(),
         val suggestedPlaces: RealmList<String> = realmListOf(),
         val suggestedHotels: RealmList<String> = realmListOf(),
         val name: String = "",

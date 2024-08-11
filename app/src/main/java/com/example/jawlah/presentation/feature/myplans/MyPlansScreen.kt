@@ -76,7 +76,7 @@ fun MyPlansScreen(
                 )
 
                 is MyPlansContract.Effect.Navigation.NavigateToPlanDetails -> navigator.navigate(
-                    PlanDetailsScreenDestination(request.id)
+                    PlanDetailsScreenDestination(request.id, request.listOfDestinations)
                 )
             }
         }
@@ -151,7 +151,8 @@ fun MyPlansScreenContent(
                     onClicked = {
                         onNavigationRequested(
                             MyPlansContract.Effect.Navigation.NavigateToPlanDetails(
-                                plan.id
+                                plan.id,
+                                plan.distenations.toString()
                             )
                         )
                     }

@@ -2,7 +2,6 @@ package com.example.jawlah.domain.ask_gemi.usecase
 
 import com.example.jawlah.base.annotation.GeneralAiModel
 import com.example.jawlah.base.dispatcher.Dispatcher
-import com.example.jawlah.base.network.ApiResult
 import com.example.jawlah.base.usecase.FlowUseCaseWrapper
 import com.example.jawlah.presentation.feature.ask_gemi.Message
 import com.google.ai.client.generativeai.Chat

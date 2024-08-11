@@ -144,7 +144,7 @@ fun AiSuggestionCard(
                 modifier = modifier.padding(start = 32.dp, end = 8.dp)
             )
 
-            if(isLoading) {
+            if (isLoading && list.isEmpty()) {
                 Row(
                     modifier = modifier.horizontalScroll(state = rememberScrollState())
                 ) {
@@ -322,7 +322,9 @@ fun PlanDetailCard(
 @Composable
 fun TripSummaryCard(modifier: Modifier = Modifier) {
     OutlinedCard(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
         )
@@ -345,31 +347,60 @@ fun TripSummaryCard(modifier: Modifier = Modifier) {
             )
 
             // Timeline Items
-            TimelineItem(time = "06:00 PST AM", title = "SFO - LAX", icon = Icons.Filled.LocationOn, description = "DL 2648 (Delta Air Lines)\nConf: DL1234\nDep. Term. 2, Gate 56B, Seat: 19B\nArrival: 7:29 AM PST")
+            TimelineItem(
+                time = "06:00 PST AM",
+                title = "SFO - LAX",
+                icon = Icons.Filled.LocationOn,
+                description = "DL 2648 (Delta Air Lines)\nConf: DL1234\nDep. Term. 2, Gate 56B, Seat: 19B\nArrival: 7:29 AM PST"
+            )
             Spacer(
                 modifier = Modifier
                     .width(2.dp)
                     .height(40.dp)
                     .background(MaterialTheme.colorScheme.outline)
             )
-            TimelineItem(time = "", title = "36m layover in Los Angeles", icon = Icons.Filled.LocationOn)
+            TimelineItem(
+                time = "",
+                title = "36m layover in Los Angeles",
+                icon = Icons.Filled.LocationOn
+            )
             Spacer(
                 modifier = Modifier
                     .width(2.dp)
                     .height(40.dp)
                     .background(MaterialTheme.colorScheme.outline)
             )
-            TimelineItem(time = "08:05 PST AM", title = "LAX - JFK", icon = Icons.Filled.LocationOn, description = "DL 688 (Delta Air Lines)\nConf: DL1234\nDep. Term. 3, Gate 33, Seat: 12C\nArrival: 4:35 PM EST")
+            TimelineItem(
+                time = "08:05 PST AM",
+                title = "LAX - JFK",
+                icon = Icons.Filled.LocationOn,
+                description = "DL 688 (Delta Air Lines)\nConf: DL1234\nDep. Term. 3, Gate 33, Seat: 12C\nArrival: 4:35 PM EST"
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            TimelineItem(time = "", title = "Avis Car Rental - JFK", icon = Icons.Filled.LocationOn, description = "Pick up: 7:45 PM EST\nJohn F. Kennedy International Airport (JFK), 305 Federal Ci")
+            TimelineItem(
+                time = "",
+                title = "Avis Car Rental - JFK",
+                icon = Icons.Filled.LocationOn,
+                description = "Pick up: 7:45 PM EST\nJohn F. Kennedy International Airport (JFK), 305 Federal Ci"
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            TimelineItem(time = "", title = "Central Park Hotel", icon = Icons.Filled.LocationOn, description = "Check in: 8:00 PM EST\n201 W 58th St. New ")
+            TimelineItem(
+                time = "",
+                title = "Central Park Hotel",
+                icon = Icons.Filled.LocationOn,
+                description = "Check in: 8:00 PM EST\n201 W 58th St. New "
+            )
         }
     }
 }
 
 @Composable
-fun TimelineItem(time: String, title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, description: String = "") {
+fun TimelineItem(
+    time: String,
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    description: String = ""
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

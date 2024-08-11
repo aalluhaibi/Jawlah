@@ -6,16 +6,15 @@ import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
 import com.example.jawlah.data.local.realm.plan.entity.PlanEntity
 import com.example.jawlah.data.local.realm.plan.entity.TransactionEntity
 import com.example.jawlah.domain.myplans.MyPlansRepo
+import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
 import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.asFlow
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.notifications.ResultsChange
-import io.realm.kotlin.query.find
-import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
 class MyPlanRepoImpl(
-    private val realm: Realm
+    private val realm: Realm,
+    private val generativeModel: GenerativeModel
 ) : MyPlansRepo {
     override suspend fun insertPlan(plan: PlanEntity) {
         val uuid = UUID.randomUUID().toString()
@@ -52,6 +51,28 @@ class MyPlanRepoImpl(
         ).find().toList()
 
         return places
+    }
+
+    override suspend fun retrieveAIPlaceRecommendations(destinations: String): List<String> {
+        val prompt = "Recommend me places names (10 names for each destination) to visit in my trip to $destinations split each place by new line. only list the names of places even if it was more than a destination list them all together. look at the following example to visit Paris & London: " +
+                "prompt: Recommend me places names (10 names for each destination) to visit in my trip to Paris & London split each place by new line. only list the names of places even if it was more than a destination list them all together. " + " response: Eiffel Tower\\nLouvre Museum\\nArc de Triomphe\\nNotre Dame Cathedral\\nMusée d'Orsay\\nSacré-Cœur Basilica\\nMontmartre\\nThe Palace of Versailles\\nPère Lachaise Cemetery\\nLatin Quarter\\nMusée Picasso\\nCentre Pompidou\\nÎle de la Cité\\nMusée Rodin\\nChamps-Élysées\\nTuileries Garden\\nCatacombs of Paris\\nMusée du Quai Branly - Jacques Chirac\\nSaint-Germain-des-Prés\\nPlace de la Concorde\\nBuckingham Palace\\nTower of London\\nThe British Museum\\nHouses of Parliament\\nLondon Eye\\nSt. Paul's Cathedral\\nTower Bridge\\nNational Gallery\\nWestminster Abbey\\nHyde Park\\nKensington Palace\\nThe Shard\\nShakespeare's Globe Theatre\\nThe National Portrait Gallery\\nThe Tate Modern\\nThe Victoria and Albert Museum\\nThe Churchill War Rooms\\nThe Royal Albert Hall\\nHampstead Heath\\nKew Gardens"
+
+        try {
+            val response = generativeModel.generateContent(
+                content {
+                    text(prompt)
+                }
+            )
+
+            response.text?.let { outputContent ->
+                return outputContent.split("\n").map { it.trim() }
+            }
+            return emptyList()
+        } catch (e: Exception) {
+            // TODO: Handle the exception
+            return emptyList()
+        }
+
     }
 
     override suspend fun retrievePlans(): List<PlanEntity> {

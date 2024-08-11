@@ -2,6 +2,7 @@ package com.example.jawlah.presentation.feature.plandetails
 
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -108,10 +110,13 @@ fun PlanDetailsScreenContent(
         onEventSent(PlanDetailsContract.Event.Init)
         onEventSent(PlanDetailsContract.Event.LoadSuggestions)
     }
+    val context = LocalContext.current
     var showPlaceDialog by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var showBottomSheet by remember { mutableStateOf(false) }
     var showBottomSheetPlaces by remember { mutableStateOf(false) }
+    var listType by remember { mutableStateOf(PlaceType.Place) }
+    var placeName by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier
@@ -163,7 +168,9 @@ fun PlanDetailsScreenContent(
                         )
                     }
                     IconButton(
-                        onClick = { }
+                        onClick = {
+                            Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show()
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.chat_ai),
@@ -198,7 +205,9 @@ fun PlanDetailsScreenContent(
 
             if (showPlaceDialog) {
                 PlaceEntryDialog(
+                    name = placeName,
                     onDismiss = {
+                        placeName = ""
                         showPlaceDialog = false
                     }
                 ) { name, description, locationUrl, type ->
@@ -207,18 +216,27 @@ fun PlanDetailsScreenContent(
                         this.description = description
                         this.locationUrl = locationUrl
                         this.type = when (type) {
-                            "Place" -> PlaceType.Place
-                            "Activity" -> PlaceType.Activity
-                            "Lodging" -> PlaceType.Lodging
-                            "Other" -> PlaceType.Other
+                            "PLACE" -> PlaceType.Place
+                            "ACTIVITY" -> PlaceType.Activity
+                            "LODGING" -> PlaceType.Lodging
+                            "OTHER" -> PlaceType.Other
                             else -> PlaceType.Place
                         }
                     }))
+                    placeName = ""
+                    showPlaceDialog = false
                 }
             }
 
             if (showBottomSheetPlaces) {
-                FullScreenBottomSheet(placeList = viewState.places) {
+                FullScreenBottomSheet(
+                    placeList = when (listType) {
+                        PlaceType.Place -> viewState.places
+                        PlaceType.Activity -> viewState.activities
+                        PlaceType.Lodging -> viewState.lodging
+                        PlaceType.Other -> viewState.others
+                    }
+                ) {
                     showBottomSheetPlaces = false
                 }
             }
@@ -234,6 +252,7 @@ fun PlanDetailsScreenContent(
 
                 if (showBottomSheet) {
                     AddPlaceBottomSheet(onDismiss = { showBottomSheet = false }) { placeType ->
+
                         showDialog = true
                     }
                 }
@@ -282,10 +301,13 @@ fun PlanDetailsScreenContent(
                     AiSuggestionCard(
                         title = "Places",
                         description = "Must-See attractions. Do not miss any thing!",
-                        isLoading = viewState.loading,
+                        isLoading = viewState.aiLoading,
                         list = viewState.suggestedPlaces,
                         icon = R.drawable.map_location,
-                        onItemClicked = {}
+                        onItemClicked = {
+                            showPlaceDialog = true
+                            placeName = it
+                        }
                     )
 
                     Spacer(modifier = modifier.height(16.dp))
@@ -307,14 +329,18 @@ fun PlanDetailsScreenContent(
                         modifier = modifier.weight(1f)
                     ) {
                         showBottomSheetPlaces = true
+                        listType = PlaceType.Place
                     }
                     Spacer(modifier = modifier.width(8.dp))
                     PlanDetailCard(
                         title = "Activities",
                         icon = R.drawable.hot_air_balloon,
-                        count = viewState.places.size,
+                        count = viewState.activities.size,
                         modifier = modifier.weight(1f)
-                    ) { }
+                    ) {
+                        showBottomSheetPlaces = true
+                        listType = PlaceType.Activity
+                    }
                 }
                 Spacer(modifier = modifier.padding(8.dp))
                 Row(
@@ -327,16 +353,22 @@ fun PlanDetailsScreenContent(
                     PlanDetailCard(
                         title = "Lodging",
                         icon = R.drawable.lodging,
-                        count = viewState.places.size,
+                        count = viewState.lodging.size,
                         modifier = modifier.weight(1f)
-                    ) { }
+                    ) {
+                        showBottomSheetPlaces = true
+                        listType = PlaceType.Lodging
+                    }
                     Spacer(modifier = modifier.width(8.dp))
                     PlanDetailCard(
                         title = "Others",
                         icon = R.drawable.booking,
-                        count = viewState.places.size,
+                        count = viewState.others.size,
                         modifier = modifier.weight(1f)
-                    ) { }
+                    ) {
+                        showBottomSheetPlaces = true
+                        listType = PlaceType.Other
+                    }
                 }
             }
         }
@@ -344,7 +376,8 @@ fun PlanDetailsScreenContent(
 }
 
 data class PlanDetailsScreenNavArgs(
-    val id: String
+    val id: String,
+    val listOfDestinations: String
 )
 
 

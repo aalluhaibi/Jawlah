@@ -36,7 +36,7 @@ class CreatePlanContract {
 
 
         sealed class Navigation : Effect() {
-            data class NavigateToPlanDetailScreen(val id: String) : Navigation()
+            data class NavigateToPlanDetailScreen(val id: String, val listOfDestinations: List<String>) : Navigation()
             data object Back : Navigation()
         }
     }

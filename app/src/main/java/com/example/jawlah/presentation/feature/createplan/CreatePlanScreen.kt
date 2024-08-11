@@ -56,9 +56,10 @@ fun CreatePlanScreen(
                 CreatePlanContract.Effect.Navigation.Back -> navigator.navigateUp()
                 is CreatePlanContract.Effect.Navigation.NavigateToPlanDetailScreen -> {
                     navigator.navigate(
-                        PlanDetailsScreenDestination(PlanDetailsScreenNavArgs(request.id))
-                    )
-                    navigator.navigateUp()
+                        PlanDetailsScreenDestination(PlanDetailsScreenNavArgs(request.id, request.listOfDestinations.toString()))
+                    ) {
+                        navigator.popBackStack()
+                    }
                 }
             }
         }

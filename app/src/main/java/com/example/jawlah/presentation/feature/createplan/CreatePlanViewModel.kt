@@ -84,7 +84,7 @@ class CreatePlanViewModel @Inject constructor(
                     }
                 )
                 setEffect {
-                    CreatePlanContract.Effect.Navigation.NavigateToPlanDetailScreen(planId)
+                    CreatePlanContract.Effect.Navigation.NavigateToPlanDetailScreen(planId, viewState.value.destinations)
                 }
             }.onFailure {
                 setEffect { CreatePlanContract.Effect.Error(it.message.toString()) }
