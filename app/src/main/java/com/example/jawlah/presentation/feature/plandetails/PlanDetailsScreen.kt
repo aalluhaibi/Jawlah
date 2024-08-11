@@ -1,6 +1,8 @@
 package com.example.jawlah.presentation.feature.plandetails
 
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,9 +49,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.jawlah.R
+import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
+import com.example.jawlah.data.local.realm.plan.entity.PlaceType
 import com.example.jawlah.presentation.component.AddPlaceBottomSheet
 import com.example.jawlah.presentation.component.AiSuggestionCard
+import com.example.jawlah.presentation.component.FullScreenBottomSheet
 import com.example.jawlah.presentation.component.FullScreenDialog
+import com.example.jawlah.presentation.component.PlaceEntryDialog
 import com.example.jawlah.presentation.component.PlanDetailCard
 import com.example.jawlah.presentation.feature.destinations.AITestScreenDestination
 import com.example.jawlah.presentation.feature.destinations.BudgetScreenDestination
@@ -58,6 +64,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.Flow
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Destination(navArgsDelegate = PlanDetailsScreenNavArgs::class)
 @Composable
 fun PlanDetailsScreen(
@@ -87,6 +94,7 @@ fun PlanDetailsScreen(
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanDetailsScreenContent(
@@ -100,8 +108,10 @@ fun PlanDetailsScreenContent(
         onEventSent(PlanDetailsContract.Event.Init)
         onEventSent(PlanDetailsContract.Event.LoadSuggestions)
     }
+    var showPlaceDialog by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showBottomSheetPlaces by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier
@@ -166,7 +176,7 @@ fun PlanDetailsScreenContent(
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = {
-                            showBottomSheet = true
+                            showPlaceDialog = true
                         },
                     ) {
                         Icon(
@@ -185,6 +195,34 @@ fun PlanDetailsScreenContent(
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {
+
+            if (showPlaceDialog) {
+                PlaceEntryDialog(
+                    onDismiss = {
+                        showPlaceDialog = false
+                    }
+                ) { name, description, locationUrl, type ->
+                    onEventSent(PlanDetailsContract.Event.AddPlace(PlaceEntity().apply {
+                        this.name = name
+                        this.description = description
+                        this.locationUrl = locationUrl
+                        this.type = when (type) {
+                            "Place" -> PlaceType.Place
+                            "Activity" -> PlaceType.Activity
+                            "Lodging" -> PlaceType.Lodging
+                            "Other" -> PlaceType.Other
+                            else -> PlaceType.Place
+                        }
+                    }))
+                }
+            }
+
+            if (showBottomSheetPlaces) {
+                FullScreenBottomSheet(placeList = viewState.places) {
+                    showBottomSheetPlaces = false
+                }
+            }
+
             Surface(
                 modifier = modifier
                     .fillMaxWidth()
@@ -267,7 +305,9 @@ fun PlanDetailsScreenContent(
                         icon = R.drawable.map_location,
                         count = viewState.places.size,
                         modifier = modifier.weight(1f)
-                    ) { }
+                    ) {
+                        showBottomSheetPlaces = true
+                    }
                     Spacer(modifier = modifier.width(8.dp))
                     PlanDetailCard(
                         title = "Activities",
@@ -308,6 +348,7 @@ data class PlanDetailsScreenNavArgs(
 )
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun PlanDetailsScreenContentPreview() {

@@ -153,8 +153,8 @@ class BudgetViewModel @Inject constructor(
                                 budgetId = result.value.id,
                                 totalIncome = result.value.totalIncome,
                                 totalExpense = calculateTotalExpense(result.value.transactionEntities),
-                                expensePercentage = (calculateTotalExpense(result.value.transactionEntities) / viewState.value.totalIncome).toFloat(),
-                                incomePercentage = (1 - (calculateTotalExpense(result.value.transactionEntities) / viewState.value.totalIncome).toFloat()),
+                                expensePercentage = (calculateTotalExpense(result.value.transactionEntities) / result.value.totalIncome).toFloat(),
+                                incomePercentage = (1 - (calculateTotalExpense(result.value.transactionEntities) / result.value.totalIncome).toFloat()),
                                 transactions = result.value.transactionEntities.toMutableList(),
                                 transactionsMap = result.value.transactionEntities.groupBy { it.date }
                                     .toMutableMap()

@@ -9,6 +9,8 @@ import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
 import com.example.jawlah.data.local.realm.plan.entity.PlaceType
 import com.example.jawlah.domain.budget.usecase.AddPlaceRequest
 import com.example.jawlah.domain.budget.usecase.AddPlaceUseCase
+import com.example.jawlah.domain.budget.usecase.RetrievePlacesRequest
+import com.example.jawlah.domain.budget.usecase.RetrievePlacesUseCase
 import com.example.jawlah.presentation.feature.destinations.PlanDetailsScreenDestination
 import com.example.jawlah.presentation.util.BaseMviViewModel
 import com.google.ai.client.generativeai.GenerativeModel
@@ -24,6 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PlanDetailsViewModel @Inject constructor(
     private val addPlaceUseCase: AddPlaceUseCase,
+    private val retrievePlacesUseCase: RetrievePlacesUseCase,
     savedStateHandle: SavedStateHandle
 ) :
     BaseMviViewModel<PlanDetailsContract.Event, PlanDetailsContract.State, PlanDetailsContract.Effect>() {
@@ -46,6 +49,7 @@ class PlanDetailsViewModel @Inject constructor(
             }
 
             PlanDetailsContract.Event.LoadSuggestions -> {
+                retrievePlaces()
                 retrieveSuggestedPlaces("Recommend me places names (Only names I need) to visit in my trip to Milan split each place by new line. I looking for a response as an array of names separated by new line")
             }
 
@@ -123,6 +127,41 @@ class PlanDetailsViewModel @Inject constructor(
                     is ApiResult.Success -> {
                         setState {
                             copy(loading = false)
+                        }
+                        retrievePlaces()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun retrievePlaces() {
+        viewModelScope.launch {
+            retrievePlacesUseCase(
+                RetrievePlacesRequest(planId = navArgsFromDestination.id)
+            ).collect {
+                when (it) {
+                    is ApiResult.Error -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+
+                    ApiResult.Loading -> {
+                        setState {
+                            copy(loading = true)
+                        }
+                    }
+
+                    ApiResult.Offline -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+
+                    is ApiResult.Success -> {
+                        setState {
+                            copy(loading = false, places = it.value.toMutableList())
                         }
                     }
                 }

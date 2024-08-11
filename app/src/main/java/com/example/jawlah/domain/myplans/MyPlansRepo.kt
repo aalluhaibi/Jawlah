@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface MyPlansRepo {
     suspend fun insertPlan(plan: PlanEntity)
     suspend fun insertPlace(place: PlaceEntity)
+    suspend fun retrievePlaces(planId: String): List<PlaceEntity>
     suspend fun retrievePlans(): List<PlanEntity>
     suspend fun insertBudget(budget: BudgetEntity)
     suspend fun insertTransaction(transactionEntity: TransactionEntity)

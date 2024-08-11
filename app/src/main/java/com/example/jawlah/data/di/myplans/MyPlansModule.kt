@@ -9,6 +9,7 @@ import com.example.jawlah.domain.budget.usecase.AddTransactionUseCase
 import com.example.jawlah.domain.budget.usecase.CreateBudgetUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveBudgetUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveCategoriesUseCase
+import com.example.jawlah.domain.budget.usecase.RetrievePlacesUseCase
 import com.example.jawlah.domain.myplans.MyPlansRepo
 import dagger.Module
 import dagger.Provides
@@ -73,6 +74,15 @@ class MyPlansModule {
         dispatcher: Dispatcher,
         repo: MyPlansRepo
     ): RetrieveCategoriesUseCase = RetrieveCategoriesUseCase(
+        dispatcher = dispatcher,
+        repo = repo
+    )
+
+    @Provides
+    fun provideRetrievePlacesUseCase(
+        dispatcher: Dispatcher,
+        repo: MyPlansRepo
+    ): RetrievePlacesUseCase = RetrievePlacesUseCase(
         dispatcher = dispatcher,
         repo = repo
     )

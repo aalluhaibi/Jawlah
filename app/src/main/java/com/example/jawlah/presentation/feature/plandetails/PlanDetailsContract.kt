@@ -1,5 +1,6 @@
 package com.example.jawlah.presentation.feature.plandetails
 
+import androidx.compose.runtime.mutableStateListOf
 import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
 import com.example.jawlah.presentation.util.ViewEvent
 import com.example.jawlah.presentation.util.ViewSideEffect
@@ -18,7 +19,7 @@ class PlanDetailsContract {
         val loading: Boolean = false,
         val planId: String = "",
         val destinations: RealmList<String> = realmListOf(),
-        val places: RealmList<String> = realmListOf(),
+        val places: MutableList<PlaceEntity> = mutableStateListOf(),
         val suggestedPlaces: RealmList<String> = realmListOf(),
         val suggestedHotels: RealmList<String> = realmListOf(),
         val name: String = "",

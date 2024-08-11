@@ -14,6 +14,7 @@ import com.example.jawlah.data.local.realm.RealmPreferences
 import com.example.jawlah.data.local.realm.RealmSecurePreferences
 import com.example.jawlah.data.local.realm.plan.entity.BudgetEntity
 import com.example.jawlah.data.local.realm.plan.entity.CategoryEntity
+import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
 import com.example.jawlah.data.local.realm.plan.entity.PlanEntity
 import com.example.jawlah.data.local.realm.plan.entity.TransactionEntity
 import com.example.jawlah.data.remote.httpclient.httperror.AppHttpErrorMapper
@@ -157,6 +158,7 @@ class AppModule {
         val config = RealmConfiguration.Builder(
             schema = setOf(
                 PlanEntity::class,
+                PlaceEntity::class,
                 BudgetEntity::class,
                 TransactionEntity::class,
                 CategoryEntity::class

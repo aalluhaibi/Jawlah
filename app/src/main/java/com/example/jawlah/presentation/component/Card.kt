@@ -275,7 +275,9 @@ fun PlanDetailCard(
 ) {
     OutlinedCard(
         modifier = modifier.padding(8.dp),
-        onClick = {}
+        onClick = {
+            onClicked.invoke()
+        }
     ) {
         Column {
             Row(

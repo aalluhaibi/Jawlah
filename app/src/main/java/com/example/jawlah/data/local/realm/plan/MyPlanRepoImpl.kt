@@ -45,6 +45,15 @@ class MyPlanRepoImpl(
         }
     }
 
+    override suspend fun retrievePlaces(planId: String): List<PlaceEntity> {
+        val places = realm.query<PlaceEntity>(
+            "planId == $0",
+            planId
+        ).find().toList()
+
+        return places
+    }
+
     override suspend fun retrievePlans(): List<PlanEntity> {
         TODO("Not yet implemented")
     }
