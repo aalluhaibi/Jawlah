@@ -14,6 +14,7 @@ import com.example.jawlah.domain.budget.usecase.RetrieveBudgetUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveCategoriesUseCase
 import com.example.jawlah.domain.budget.usecase.RetrievePlacesUseCase
 import com.example.jawlah.domain.budget.usecase.RetrieveSuggestedPlacesUseCase
+import com.example.jawlah.domain.myplans.DeletePlanUseCase
 import com.example.jawlah.domain.myplans.MyPlansRepo
 import com.google.ai.client.generativeai.GenerativeModel
 import dagger.Module
@@ -38,6 +39,15 @@ class MyPlansModule {
         dispatcher: Dispatcher,
         repo: MyPlansRepo
     ): RetrieveBudgetUseCase = RetrieveBudgetUseCase(
+        dispatcher = dispatcher,
+        repo = repo
+    )
+
+    @Provides
+    fun provideDeletePlanUseCase(
+        dispatcher: Dispatcher,
+        repo: MyPlansRepo
+    ): DeletePlanUseCase = DeletePlanUseCase(
         dispatcher = dispatcher,
         repo = repo
     )

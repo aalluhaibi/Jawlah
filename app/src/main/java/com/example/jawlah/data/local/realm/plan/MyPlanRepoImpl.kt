@@ -33,6 +33,15 @@ class MyPlanRepoImpl(
         }
     }
 
+    override suspend fun deletePlan(plan: PlanEntity) {
+        realm.writeBlocking {
+            val planToDelete = this.query<PlanEntity>("id = $0", plan.id).first().find()
+            if (planToDelete != null) {
+                delete(planToDelete)
+            }
+        }
+    }
+
     override suspend fun insertPlace(place: PlaceEntity) {
         realm.write {
             val targetPlace =
@@ -56,8 +65,9 @@ class MyPlanRepoImpl(
     }
 
     override suspend fun retrieveAIPlaceRecommendations(destinations: String): List<String> {
-        val prompt = "Recommend me places names (10 names for each destination) to visit in my trip to $destinations split each place by new line. only list the names of places even if it was more than a destination list them all together. look at the following example to visit Paris & London: " +
-                "prompt: Recommend me places names (10 names for each destination) to visit in my trip to Paris & London split each place by new line. only list the names of places even if it was more than a destination list them all together. " + " response: Eiffel Tower\\nLouvre Museum\\nArc de Triomphe\\nNotre Dame Cathedral\\nMusée d'Orsay\\nSacré-Cœur Basilica\\nMontmartre\\nThe Palace of Versailles\\nPère Lachaise Cemetery\\nLatin Quarter\\nMusée Picasso\\nCentre Pompidou\\nÎle de la Cité\\nMusée Rodin\\nChamps-Élysées\\nTuileries Garden\\nCatacombs of Paris\\nMusée du Quai Branly - Jacques Chirac\\nSaint-Germain-des-Prés\\nPlace de la Concorde\\nBuckingham Palace\\nTower of London\\nThe British Museum\\nHouses of Parliament\\nLondon Eye\\nSt. Paul's Cathedral\\nTower Bridge\\nNational Gallery\\nWestminster Abbey\\nHyde Park\\nKensington Palace\\nThe Shard\\nShakespeare's Globe Theatre\\nThe National Portrait Gallery\\nThe Tate Modern\\nThe Victoria and Albert Museum\\nThe Churchill War Rooms\\nThe Royal Albert Hall\\nHampstead Heath\\nKew Gardens"
+        val prompt =
+            "Recommend me places names (10 names for each destination) to visit in my trip to $destinations split each place by new line. only list the names of places even if it was more than a destination list them all together. look at the following example to visit Paris & London: " +
+                    "prompt: Recommend me places names (10 names for each destination) to visit in my trip to Paris & London split each place by new line. only list the names of places even if it was more than a destination list them all together. " + " response: Eiffel Tower\\nLouvre Museum\\nArc de Triomphe\\nNotre Dame Cathedral\\nMusée d'Orsay\\nSacré-Cœur Basilica\\nMontmartre\\nThe Palace of Versailles\\nPère Lachaise Cemetery\\nLatin Quarter\\nMusée Picasso\\nCentre Pompidou\\nÎle de la Cité\\nMusée Rodin\\nChamps-Élysées\\nTuileries Garden\\nCatacombs of Paris\\nMusée du Quai Branly - Jacques Chirac\\nSaint-Germain-des-Prés\\nPlace de la Concorde\\nBuckingham Palace\\nTower of London\\nThe British Museum\\nHouses of Parliament\\nLondon Eye\\nSt. Paul's Cathedral\\nTower Bridge\\nNational Gallery\\nWestminster Abbey\\nHyde Park\\nKensington Palace\\nThe Shard\\nShakespeare's Globe Theatre\\nThe National Portrait Gallery\\nThe Tate Modern\\nThe Victoria and Albert Museum\\nThe Churchill War Rooms\\nThe Royal Albert Hall\\nHampstead Heath\\nKew Gardens"
 
         try {
             val response = generativeModel.generateContent(

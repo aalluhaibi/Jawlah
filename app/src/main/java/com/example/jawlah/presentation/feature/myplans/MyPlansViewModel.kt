@@ -4,7 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.jawlah.BuildConfig
 import com.example.jawlah.UiState
+import com.example.jawlah.base.network.ApiResult
 import com.example.jawlah.data.local.realm.plan.entity.PlanEntity
+import com.example.jawlah.domain.budget.usecase.AddPlaceRequest
+import com.example.jawlah.domain.myplans.DeletePlanRequest
+import com.example.jawlah.domain.myplans.DeletePlanUseCase
+import com.example.jawlah.presentation.feature.createplan.CreatePlanContract
 import com.example.jawlah.presentation.util.BaseMviViewModel
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
@@ -20,7 +25,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyPlansViewModel @Inject constructor(
-    private val realm: Realm,
+    private val realm: Realm, // TODO: Add use case
+    private val deletePlanUseCase: DeletePlanUseCase
 ) :
     BaseMviViewModel<MyPlansContract.Event, MyPlansContract.State, MyPlansContract.Effect>() {
 
@@ -50,7 +56,10 @@ class MyPlansViewModel @Inject constructor(
 
     override fun handleEvents(event: MyPlansContract.Event) {
         when (event) {
-            MyPlansContract.Event.CreatePlan -> TODO()
+            MyPlansContract.Event.CreatePlan -> {}
+            is MyPlansContract.Event.DeletePlan -> {
+                deletePlan(event.plan)
+            }
         }
     }
 
@@ -75,6 +84,41 @@ class MyPlansViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 _uiState.value = UiState.Error(e.localizedMessage ?: "")
+            }
+        }
+    }
+
+    fun deletePlan(plan: PlanEntity) {
+        viewModelScope.launch {
+            deletePlanUseCase(
+                DeletePlanRequest(plan)
+            ).collect {
+                when (it) {
+                    is ApiResult.Error -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+
+                    ApiResult.Loading -> {
+                        setState {
+                            copy(loading = true)
+                        }
+                    }
+
+                    ApiResult.Offline -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                    }
+
+                    is ApiResult.Success -> {
+                        setState {
+                            copy(loading = false)
+                        }
+                        retrieveMyPlans()
+                    }
+                }
             }
         }
     }

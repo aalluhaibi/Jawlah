@@ -20,8 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -189,76 +192,86 @@ fun PlanCard(
     list: List<String> = listOf(),
     startDate: Long,
     endDate: Long,
-    onClicked: (String) -> Unit
+    onClicked: (String) -> Unit,
+    onDeleteClicked: () -> Unit
 ) {
     OutlinedCard(
         modifier = modifier.padding(horizontal = 16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
-        )
+        ),
+        onClick = {
+            onClicked.invoke(title)
+        }
     ) {
-        Column(
-            modifier = modifier
-        ) {
-            Row(
+        Box(modifier = modifier) {
+            Column(
                 modifier = modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.trip_time),
-                    contentDescription = "Expand",
-                    modifier = modifier.size(32.dp)
-                )
-
-                Spacer(modifier = modifier.width(8.dp))
-
-                Text(
-                    text = title,
-                    style = TextStyle(
-                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                        fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
-                        fontFamily = MaterialTheme.typography.titleMedium.fontFamily
-                    ),
-                    modifier = modifier.padding(horizontal = 8.dp)
-                )
-            }
-
-            LazyRow(
-                modifier = modifier.padding(start = 26.dp)
-            ) {
-                items(list) { item ->
-                    FilterChip(
-                        selected = true,
-                        onClick = { onClicked(item) },
-                        label = { Text(item) },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Filled.LocationOn,
-                                contentDescription = "destination",
-                                modifier = modifier.size(AssistChipDefaults.IconSize)
-                            )
-                        }
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.trip_time),
+                        contentDescription = "Expand",
+                        modifier = modifier.size(32.dp)
                     )
-                    Spacer(modifier = modifier.padding(8.dp))
+
+                    Spacer(modifier = modifier.width(8.dp))
+
+                    Text(
+                        text = title,
+                        style = TextStyle(
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
+                            fontFamily = MaterialTheme.typography.titleMedium.fontFamily
+                        ),
+                        modifier = modifier.padding(horizontal = 8.dp)
+                    )
+                }
+
+                LazyRow(
+                    modifier = modifier.padding(start = 26.dp)
+                ) {
+                    items(list) { item ->
+                        FilterChip(
+                            selected = true,
+                            onClick = {  },
+                            label = { Text(item) },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Filled.LocationOn,
+                                    contentDescription = "destination",
+                                    modifier = modifier.size(AssistChipDefaults.IconSize)
+                                )
+                            }
+                        )
+                        Spacer(modifier = modifier.padding(8.dp))
+                    }
+                }
+
+
+                Row(
+                    modifier = modifier.padding(horizontal = 26.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AssistChip(
+                        onClick = { },
+                        label = { Text(convertLongToDateString(startDate)) },
+                    )
+                    Spacer(modifier = modifier.width(4.dp))
+                    AssistChip(
+                        onClick = { },
+                        label = { Text(convertLongToDateString(endDate)) },
+                    )
                 }
             }
 
-
-            Row(
-                modifier = modifier.padding(horizontal = 26.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AssistChip(
-                    onClick = { },
-                    label = { Text(convertLongToDateString(startDate)) },
-                )
-                Spacer(modifier = modifier.width(4.dp))
-                AssistChip(
-                    onClick = { },
-                    label = { Text(convertLongToDateString(endDate)) },
-                )
+            IconButton(onClick = { onDeleteClicked.invoke() }, modifier = modifier.align(Alignment.TopEnd)) {
+                Icon(imageVector = Icons.Outlined.Delete, contentDescription = stringResource(id = R.string.delete))
             }
         }
     }
@@ -487,6 +500,7 @@ fun PlanCardPreview() {
         list = listOf("Test", "Test", "Test"),
         startDate = 1718772522L,
         endDate = 1718772522L,
+        onClicked = {}
     ) { }
 }
 

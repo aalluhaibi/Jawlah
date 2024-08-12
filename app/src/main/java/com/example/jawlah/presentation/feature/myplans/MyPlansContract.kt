@@ -9,6 +9,7 @@ import com.example.jawlah.presentation.util.ViewState
 class MyPlansContract {
     sealed class Event: ViewEvent {
         data object CreatePlan: Event()
+        data class DeletePlan(val plan: PlanEntity): Event()
     }
 
     data class State(

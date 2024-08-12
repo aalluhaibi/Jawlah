@@ -8,6 +8,7 @@ import com.example.jawlah.data.local.realm.plan.entity.TransactionEntity
 
 interface MyPlansRepo {
     suspend fun insertPlan(plan: PlanEntity)
+    suspend fun deletePlan(plan: PlanEntity)
     suspend fun insertPlace(place: PlaceEntity)
     suspend fun retrievePlaces(planId: String): List<PlaceEntity>
     suspend fun retrieveAIPlaceRecommendations(destinations: String): List<String>

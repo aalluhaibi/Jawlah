@@ -167,7 +167,9 @@ fun MyPlansScreenContent(
                                 )
                             )
                         }
-                    )
+                    ) {
+                        onEventSent(MyPlansContract.Event.DeletePlan(plan))
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
