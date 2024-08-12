@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -117,12 +118,7 @@ fun AskGemiScreenContent(
 
             if (viewState.loading) {
                 Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    LottieAnimationComponent(
-                        modifier = modifier
-                            .width(100.dp)
-                            .height(50.dp),
-                        resId = R.raw.typing
-                    )
+                    CircularProgressIndicator()
                 }
             }
             ChatBottomBar(
