@@ -1,10 +1,15 @@
 package com.example.jawlah.presentation.feature.ask_gemi
 
-import android.app.Activity
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -18,24 +23,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
 import com.example.jawlah.R
 import com.example.jawlah.presentation.component.ChatBottomBar
 import com.example.jawlah.presentation.component.ChatBubble
+import com.example.jawlah.presentation.component.LottieAnimationComponent
 import com.example.jawlah.presentation.component.QuickPick
-import com.example.jawlah.presentation.feature.destinations.AskGemiScreenDestination
-import com.example.jawlah.presentation.feature.plandetails.PlanDetailsScreenNavArgs
 import com.example.jawlah.presentation.util.AppNavGraph
-import com.example.jawlah.presentation.util.SIDE_EFFECTS_KEY
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.Flow
@@ -116,6 +115,16 @@ fun AskGemiScreenContent(
                 }
             }
 
+            if (viewState.loading) {
+                Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    LottieAnimationComponent(
+                        modifier = modifier
+                            .width(100.dp)
+                            .height(50.dp),
+                        resId = R.raw.typing
+                    )
+                }
+            }
             ChatBottomBar(
                 text = viewState.textMessage,
                 onTextChanged = { onEventSent(AskGemiContract.Event.OnTextMessageChanged(it)) },

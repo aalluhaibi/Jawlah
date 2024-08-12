@@ -1,6 +1,5 @@
 package com.example.jawlah.presentation.feature.plandetails
 
-
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -21,9 +20,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -31,7 +30,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -123,36 +125,21 @@ fun PlanDetailsScreenContent(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 windowInsets = WindowInsets(
                     top = dimensionResource(id = R.dimen.dp8),
                     bottom = dimensionResource(id = R.dimen.dp8)
                 ),
-                title = { Text("Trip time! ✈\uFE0F") },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { onNavigationRequested(PlanDetailsContract.Effect.Navigation.Back) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Close"
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
+                title = { Text("Trip Details") },
                 actions = {
                     IconButton(
                         onClick = {
-                            onNavigationRequested(PlanDetailsContract.Effect.Navigation.Budget("0"))
+                            Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show()
                         }
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.calculator),
-                            contentDescription = "Calculator",
+                            painter = painterResource(R.drawable.chat_ai),
+                            contentDescription = "Chat",
                             modifier = modifier.size(24.dp),
                         )
                     }
@@ -169,30 +156,40 @@ fun PlanDetailsScreenContent(
                     }
                     IconButton(
                         onClick = {
-                            Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show()
+                            onNavigationRequested(PlanDetailsContract.Effect.Navigation.Budget("0"))
                         }
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.chat_ai),
-                            contentDescription = "Chat",
+                            painter = painterResource(R.drawable.calculator),
+                            contentDescription = "Calculator",
                             modifier = modifier.size(24.dp),
                         )
                     }
-
                 },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = {
-                            showPlaceDialog = true
-                        },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { onNavigationRequested(PlanDetailsContract.Effect.Navigation.Back) }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Add"
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Close"
                         )
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    showPlaceDialog = true
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add"
+                )
+            }
         }
     ) { paddingValues ->
         Column(

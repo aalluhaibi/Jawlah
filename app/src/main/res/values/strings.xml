@@ -25,4 +25,5 @@
     <string name="delete">Delete</string>
     <string name="enter_category">Enter Category</string>
     <string name="enter_income">Enter Income</string>
+    <string name="empty">Empty</string>
 </resources>

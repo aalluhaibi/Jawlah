@@ -104,9 +104,33 @@ class AskGemiViewModel @Inject constructor(
             try {
                 classifyLuggageUseCase(message).collect { response ->
                     when (response) {
-                        is ApiResult.Error -> {}
-                        ApiResult.Loading -> {}
-                        ApiResult.Offline -> {}
+                        is ApiResult.Error -> {
+                            setEffect {
+                                AskGemiContract.Effect.Error(response.message)
+                            }
+                            setState {
+                                copy(
+                                    loading = false,
+                                    message = Message(participant = Participant.ERROR)
+                                )
+                            }
+                        }
+                        ApiResult.Loading -> {
+                            setState {
+                                copy(loading = true)
+                            }
+                        }
+                        ApiResult.Offline -> {
+                            setEffect {
+                                AskGemiContract.Effect.Error("No internet connection")
+                            }
+                            setState {
+                                copy(
+                                    loading = false,
+                                    message = Message(participant = Participant.ERROR)
+                                )
+                            }
+                        }
                         is ApiResult.Success -> {
                             setState {
                                 copy(
@@ -136,12 +160,34 @@ class AskGemiViewModel @Inject constructor(
             try {
                 landmarkLensUseCase(message).collect { response ->
                     when (response) {
-                        is ApiResult.Error -> {}
-                        ApiResult.Loading -> {}
-                        ApiResult.Offline -> {}
+                        is ApiResult.Error -> {
+                            setEffect {
+                                AskGemiContract.Effect.Error(response.message)
+                            }
+                            setState {
+                                copy(
+                                    loading = false,
+                                    message = Message(participant = Participant.ERROR)
+                                )
+                            }
+                        }
+                        ApiResult.Loading -> {
+                            setState {
+                                copy(loading = true)
+                            }
+                        }
+                        ApiResult.Offline -> {
+                            setEffect {
+                                AskGemiContract.Effect.Error("No internet connection")
+                            }
+                            setState {
+                                copy(loading = false)
+                            }
+                        }
                         is ApiResult.Success -> {
                             setState {
                                 copy(
+                                    loading = false,
                                     messages = (viewState.value.messages + Message(
                                         text = response.value?.text ?: "",
                                         participant = Participant.GEMI
@@ -168,12 +214,31 @@ class AskGemiViewModel @Inject constructor(
             try {
                 askGemiGeneralQuestionUseCase(message).collect { response ->
                     when (response) {
-                        is ApiResult.Error -> {}
-                        ApiResult.Loading -> {}
-                        ApiResult.Offline -> {}
+                        is ApiResult.Error -> {
+                            setEffect {
+                                AskGemiContract.Effect.Error(response.message)
+                            }
+                            setState {
+                                copy(loading = false)
+                            }
+                        }
+                        ApiResult.Loading -> {
+                            setState {
+                                copy(loading = true)
+                            }
+                        }
+                        ApiResult.Offline -> {
+                            setEffect {
+                                AskGemiContract.Effect.Error("No internet connection")
+                            }
+                            setState {
+                                copy(loading = false, message = Message(participant = Participant.ERROR))
+                            }
+                        }
                         is ApiResult.Success -> {
                             setState {
                                 copy(
+                                    loading = false,
                                     messages = (viewState.value.messages + Message(
                                         text = response.value?.text ?: "",
                                         participant = Participant.GEMI

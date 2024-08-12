@@ -103,6 +103,8 @@ dependencies {
     // Screenshot testing
     screenshotTestImplementation(libs.androidx.ui.tooling)
 
+    implementation("com.airbnb.android:lottie-compose:6.5.0")
+
     // Ktor
     implementation(libs.ktor.core)
     implementation(libs.ktor.cio)

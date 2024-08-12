@@ -1,6 +1,8 @@
 package com.example.jawlah.presentation.feature.myplans
 
 import android.app.Activity
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,17 +23,22 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.compose.LottieConstants
 import com.example.jawlah.R
+import com.example.jawlah.presentation.component.EmptyComponent
+import com.example.jawlah.presentation.component.LottieAnimationComponent
 import com.example.jawlah.presentation.component.MainFab
 import com.example.jawlah.presentation.component.PlanCard
 import com.example.jawlah.presentation.component.QuickPick
@@ -137,27 +144,32 @@ fun MyPlansScreenContent(
             }
         },
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            items(viewState.myPlans) { plan ->
-                PlanCard(
-                    title = plan.name,
-                    list = plan.distenations,
-                    startDate = plan.startDate,
-                    endDate = plan.endDate,
-                    onClicked = {
-                        onNavigationRequested(
-                            MyPlansContract.Effect.Navigation.NavigateToPlanDetails(
-                                plan.id,
-                                plan.distenations.toString()
+
+        if (viewState.myPlans.isEmpty()) {
+            EmptyComponent()
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                items(viewState.myPlans) { plan ->
+                    PlanCard(
+                        title = plan.name,
+                        list = plan.distenations,
+                        startDate = plan.startDate,
+                        endDate = plan.endDate,
+                        onClicked = {
+                            onNavigationRequested(
+                                MyPlansContract.Effect.Navigation.NavigateToPlanDetails(
+                                    plan.id,
+                                    plan.distenations.toString()
+                                )
                             )
-                        )
-                    }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
     }
