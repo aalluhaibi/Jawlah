@@ -87,6 +87,7 @@ dependencies {
     // Destinations
     implementation(libs.destinations.core)
     implementation(libs.androidx.lifecycle.runtime.compose.android)
+    implementation(libs.androidx.glance.appwidget)
     ksp(libs.destinations.ksp)
 
     // Hilt Dependency Injection
@@ -102,8 +103,13 @@ dependencies {
 
     // Screenshot testing
     screenshotTestImplementation(libs.androidx.ui.tooling)
-
+    // Lottie
     implementation("com.airbnb.android:lottie-compose:6.5.0")
+    // Glance
+    // For AppWidgets support
+    implementation("androidx.glance:glance-appwidget:1.1.0")
+    // For interop APIs with Material 3
+    implementation("androidx.glance:glance-material3:1.1.0")
 
     // Ktor
     implementation(libs.ktor.core)

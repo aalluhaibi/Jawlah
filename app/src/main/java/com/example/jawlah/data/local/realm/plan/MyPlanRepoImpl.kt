@@ -1,5 +1,6 @@
 package com.example.jawlah.data.local.realm.plan
 
+import com.example.jawlah.data.local.glance.GlanceRepository
 import com.example.jawlah.data.local.realm.plan.entity.BudgetEntity
 import com.example.jawlah.data.local.realm.plan.entity.CategoryEntity
 import com.example.jawlah.data.local.realm.plan.entity.PlaceEntity
@@ -14,7 +15,8 @@ import java.util.UUID
 
 class MyPlanRepoImpl(
     private val realm: Realm,
-    private val generativeModel: GenerativeModel
+    private val generativeModel: GenerativeModel,
+    private val glanceRepo: GlanceRepository
 ) : MyPlansRepo {
     override suspend fun insertPlan(plan: PlanEntity) {
         val uuid = UUID.randomUUID().toString()
@@ -93,6 +95,7 @@ class MyPlanRepoImpl(
                     totalIncome = budget.totalIncome
                 }
             )
+            glanceRepo.retrieveBudget()
         }
     }
 
@@ -103,6 +106,7 @@ class MyPlanRepoImpl(
 
             if (targetBudget != null) {
                 targetBudget.transactionEntities.add(transactionEntity)
+                glanceRepo.retrieveBudget()
             } else {
                 // TODO: Handle the case where the budget isn't found
             }
@@ -120,7 +124,7 @@ class MyPlanRepoImpl(
 
                 if (transactionToDelete != null) {
                     targetBudget.transactionEntities.remove(transactionToDelete)
-
+                    glanceRepo.retrieveBudget()
                 } else {
                     // Handle the case where the transaction isn't found within the budget
                 }
@@ -137,6 +141,7 @@ class MyPlanRepoImpl(
 
             if (targetBudget != null) {
                 targetBudget.totalIncome = totalIncome
+                glanceRepo.retrieveBudget()
             } else {
                 // Handle the case where the budget isn't found
             }
@@ -148,17 +153,19 @@ class MyPlanRepoImpl(
             "planId == $0",
             planId
         ).find().firstOrNull() ?: BudgetEntity()
-
+        glanceRepo.retrieveBudget()
         return budget
     }
 
     override suspend fun retrieveCategory(): List<CategoryEntity> {
+        glanceRepo.retrieveBudget()
         return realm.query<CategoryEntity>().find()
     }
 
     override suspend fun insertCategory(categoryEntity: CategoryEntity) {
         realm.write {
             copyToRealm(categoryEntity)
+            glanceRepo.retrieveBudget()
         }
     }
 }

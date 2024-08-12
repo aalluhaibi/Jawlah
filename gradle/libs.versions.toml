@@ -22,6 +22,7 @@ composeBom = "2024.04.01"
 generativeai = "0.8.0"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 lifecycleRuntimeComposeAndroid = "2.8.2"
+glanceAppwidget = "1.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,6 +63,7 @@ ktor-engine-mock = {group = "io.ktor", name = "ktor-client-mock", version.ref = 
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 io-realm-kotlin = {module = "io.realm.kotlin:library-base", version.ref = "mongoDb"}
 androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose-android", version.ref = "lifecycleRuntimeComposeAndroid" }
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glanceAppwidget" }
 
 
 [plugins]

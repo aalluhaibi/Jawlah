@@ -26,4 +26,7 @@
     <string name="enter_category">Enter Category</string>
     <string name="enter_income">Enter Income</string>
     <string name="empty">Empty</string>
+    <string name="trip_budget_label">Trip Budget</string>
+    <string name="glance_description">Budget Glance</string>
+    <string name="your_budget">"Your budget: "</string>
 </resources>

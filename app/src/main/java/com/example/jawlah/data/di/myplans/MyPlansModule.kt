@@ -2,6 +2,7 @@ package com.example.jawlah.data.di.myplans
 
 import com.example.jawlah.base.annotation.GeneralAiModel
 import com.example.jawlah.base.dispatcher.Dispatcher
+import com.example.jawlah.data.local.glance.GlanceRepository
 import com.example.jawlah.data.local.realm.plan.MyPlanRepoImpl
 import com.example.jawlah.domain.budget.usecase.AddCategoryUseCase
 import com.example.jawlah.domain.budget.usecase.AddPlaceUseCase
@@ -28,8 +29,9 @@ class MyPlansModule {
     @Provides
     fun provideMyPlansRepo(
         realm: Realm,
-        @GeneralAiModel generativeModel: GenerativeModel
-    ): MyPlansRepo = MyPlanRepoImpl(realm, generativeModel)
+        @GeneralAiModel generativeModel: GenerativeModel,
+        glanceRepo: GlanceRepository
+    ): MyPlansRepo = MyPlanRepoImpl(realm, generativeModel, glanceRepo)
 
     @Provides
     fun provideRetrieveBudgetUseCase(
