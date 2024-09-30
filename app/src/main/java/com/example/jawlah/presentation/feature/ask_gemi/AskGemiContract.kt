@@ -12,6 +12,7 @@ class AskGemiContract {
         data class SubmitGeneralMessage(val message: Message?) : Event()
         data class SubmitLuggageClassificationMessage(val message: Message) : Event()
         data class SubmitLandmarkLensMessage(val message: Message) : Event()
+        data class SubmitGateNoReaderMessage(val message: Message) : Event()
         data class OnTextMessageChanged(val text: String) : Event()
         data class OnImageSelected(val image: Bitmap) : Event()
     }
