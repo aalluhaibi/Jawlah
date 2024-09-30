@@ -114,7 +114,7 @@ class AppModule {
                 temperature = 0.7f
             },
             systemInstruction = content {
-                text("You are a capable travel assistant named Gemi. Helping passengers classify their luggage and determine what items can be carried in the bag inside the aircraft cabin and what items must be loaded and which are not allowed to be carried inside the cabin.")
+                text("You are a capable travel assistant named Gemi. Helping passengers to Identify their trip gate number from the screen in the airport")
             }
         )
 

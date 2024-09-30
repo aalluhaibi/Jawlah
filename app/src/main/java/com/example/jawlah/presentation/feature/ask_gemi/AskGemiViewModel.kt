@@ -6,9 +6,8 @@ import com.example.jawlah.base.network.ApiResult
 import com.example.jawlah.domain.ask_gemi.usecase.AskGemiGeneralQuestionUseCase
 import com.example.jawlah.domain.ask_gemi.usecase.ClassifyLuggageUseCase
 import com.example.jawlah.domain.ask_gemi.usecase.LandmarkLensUseCase
+import com.example.jawlah.domain.ask_gemi.usecase.ReadGateNumberUseCase
 import com.example.jawlah.presentation.feature.destinations.AskGemiScreenDestination
-import com.example.jawlah.presentation.feature.destinations.PlanDetailsScreenDestination
-import com.example.jawlah.presentation.feature.plandetails.PlanDetailsScreenNavArgs
 import com.example.jawlah.presentation.util.BaseMviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -19,6 +18,7 @@ class AskGemiViewModel @Inject constructor(
     private val askGemiGeneralQuestionUseCase: AskGemiGeneralQuestionUseCase,
     private val classifyLuggageUseCase: ClassifyLuggageUseCase,
     private val landmarkLensUseCase: LandmarkLensUseCase,
+    private val readGateNumberUseCase: ReadGateNumberUseCase,
     savedStateHandle: SavedStateHandle
 ) :
     BaseMviViewModel<AskGemiContract.Event, AskGemiContract.State, AskGemiContract.Effect>() {
@@ -96,6 +96,21 @@ class AskGemiViewModel @Inject constructor(
                     )
                 }
             }
+
+            is AskGemiContract.Event.SubmitGateNoReaderMessage -> {
+                submitGateNumberMessage(event.message)
+                setState {
+                    copy(
+                        messages = (viewState.value.messages + Message(
+                            text = event.message.text,
+                            img = event.message.img,
+                            participant = Participant.USER
+                        )).toMutableList(),
+                        textMessage = "",
+                        message = null,
+                    )
+                }
+            }
         }
     }
 
@@ -159,6 +174,60 @@ class AskGemiViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 landmarkLensUseCase(message).collect { response ->
+                    when (response) {
+                        is ApiResult.Error -> {
+                            setEffect {
+                                AskGemiContract.Effect.Error(response.message)
+                            }
+                            setState {
+                                copy(
+                                    loading = false,
+                                    message = Message(participant = Participant.ERROR)
+                                )
+                            }
+                        }
+                        ApiResult.Loading -> {
+                            setState {
+                                copy(loading = true)
+                            }
+                        }
+                        ApiResult.Offline -> {
+                            setEffect {
+                                AskGemiContract.Effect.Error("No internet connection")
+                            }
+                            setState {
+                                copy(loading = false)
+                            }
+                        }
+                        is ApiResult.Success -> {
+                            setState {
+                                copy(
+                                    loading = false,
+                                    messages = (viewState.value.messages + Message(
+                                        text = response.value?.text ?: "",
+                                        participant = Participant.GEMI
+                                    )).toMutableList()
+                                )
+                            }
+                        }
+                    }
+                }
+
+            } catch (exception: Exception) {
+                setEffect {
+                    AskGemiContract.Effect.Error(exception.localizedMessage ?: "")
+                }
+                setState {
+                    copy(loading = false, message = Message(participant = Participant.ERROR))
+                }
+            }
+        }
+    }
+
+    private fun submitGateNumberMessage(message: Message) {
+        viewModelScope.launch {
+            try {
+                readGateNumberUseCase(message).collect { response ->
                     when (response) {
                         is ApiResult.Error -> {
                             setEffect {

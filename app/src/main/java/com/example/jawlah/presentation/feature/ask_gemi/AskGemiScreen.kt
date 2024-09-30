@@ -130,8 +130,9 @@ fun AskGemiScreenContent(
                     QuickPick.LUGGAGE_CLASSIFICATION -> {
                         onEventSent(AskGemiContract.Event.SubmitLuggageClassificationMessage(msg))
                     }
-
-                    QuickPick.READ_GATE_NO -> {}
+                    QuickPick.READ_GATE_NO -> {
+                        onEventSent(AskGemiContract.Event.SubmitGateNoReaderMessage(msg))
+                    }
                     QuickPick.LANDMARK_LENS -> {
                         onEventSent(AskGemiContract.Event.SubmitLandmarkLensMessage(msg))
                     }
